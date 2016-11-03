@@ -1,0 +1,15 @@
+{
+  "name": "projectr",
+  "version": "0.3.0",
+  "scripts": {
+    "dev": "lite-server"
+  },
+  "author": "Ryan Schill, Hi-Finn Labs",
+  "license": "MIT",
+  "devDependencies": {
+    "lite-server": "^2.2.2"
+  },
+  "dependencies": {
+    "medium-editor": "^5.22.1"
+  }
+}
