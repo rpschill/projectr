@@ -1,12 +1,14 @@
-<div layout="column" ng-controller="AppCtrl">
+<div layout="column" ng-controller="AppCtrl as appCtrl">
 
     <div data-ng-include="'app/layout/topnav.html'"></div>
 
-    <section layout="row" flex>
+    <section layout="row" layout-align="space-between center stretch" flex>
 
-        <div data-ng-include="'app/layout/sidenav.html'"></div>
+        <div data-ng-include="'app/layout/leftnav.html'" flex></div>
 
-        <div data-ng-include="'app/layout/todos.html'"></div>
+        <div data-ng-include="'app/layout/todos.html'" flex="55"></div>
+
+        <div data-ng-include="'app/layout/rightnav.html'" flex></div>
 
     </section>
 

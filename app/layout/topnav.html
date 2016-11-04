@@ -1,11 +1,14 @@
-<md-toolbar class="md-hue-2">
+<md-toolbar class="md-hue-2" ng-controller="TopCtrl as top">
     <div class="md-toolbar-tools">
-        <md-button class="md-icon-button" ng-click="toggleLeft()" hide-gt-md>
+        <md-button class="md-icon-button" ng-click="top.toggleLeft()">
             <md-icon md-font-set="material-icons"> menu </md-icon>
         </md-button>
         <h2>
-            <span>projectr</span>
+            <a href="/">projectr</a>
         </h2>
         <span flex></span>
+        <md-button class="md-icon-button" ng-click="top.toggleRight()">
+            <md-icon md-font-family="material-icons"> hourglass_full </md-icon>
+        </md-button>
     </div>
 </md-toolbar>

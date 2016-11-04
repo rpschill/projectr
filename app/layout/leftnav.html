@@ -1,0 +1,26 @@
+<md-sidenav class="md-sidenav-left" md-component-id="left" md-whiteframe="4">
+
+    <md-toolbar class="md-hue-2">
+        <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+            <h4>Projects</h4>
+            <md-button class="md-icon-button" ng-click="appCtrl.close('left')">
+                <md-icon md-font-set="material-icons"> clear </md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-content layout-padding ng-controller="LeftCtrl as left">
+
+        <md-list>
+            <md-list-item ng-repeat="project in left.projects" ng-href="/project/{{project.$id}}" class="md-whiteframe-1dp">
+                <span>{{project.title}}</span>
+            </md-list-item>
+        </md-list>
+
+        <md-button class="md-primary md-raised" ng-click="left.addProject($event)">
+            Create New Project
+        </md-button>
+
+
+
+    </md-content>
+</md-sidenav>
