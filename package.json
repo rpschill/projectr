@@ -10,6 +10,7 @@
     "lite-server": "^2.2.2"
   },
   "dependencies": {
+    "angular-contenteditable": "^0.3.9",
     "medium-editor": "^5.22.1"
   }
 }

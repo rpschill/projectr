@@ -11,7 +11,7 @@
     <md-content layout-padding ng-controller="LeftCtrl as left">
 
         <md-list>
-            <md-list-item ng-repeat="project in left.projects" ng-href="/project/{{project.$id}}" class="md-whiteframe-1dp">
+            <md-list-item ng-repeat="project in left.projects" ng-click="left.setCurrentProject(project.$id)" class="md-whiteframe-1dp">
                 <span>{{project.title}}</span>
             </md-list-item>
         </md-list>

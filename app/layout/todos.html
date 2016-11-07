@@ -1,19 +1,9 @@
-<md-list>
+<md-list ng-controller="ListCtrl as list">
 
-    <md-list-item class="md-whiteframe-2dp">
+    <md-list-item class="md-whiteframe-2dp" ng-repeat="todo in list.todos">
         <md-checkbox></md-checkbox>
-        <p>Sample Todo Item</p>
-        <md-icon class="md-secondary" md-font-family="material-icons"> alarm_add </md-icon>
-    </md-list-item>
-    <md-list-item class="md-whiteframe-2dp">
-        <md-checkbox></md-checkbox>
-        <p>Another Sample Todo Item</p>
-        <md-icon class="md-secondary" md-font-family="material-icons"> alarm_add </md-icon>
-    </md-list-item>
-    <md-list-item class="md-whiteframe-2dp">
-        <md-checkbox></md-checkbox>
-        <p>One More Sample Todo Item</p>
-        <md-icon class="md-secondary" md-font-family="material-icons"> alarm_add </md-icon>
+        <p contenteditable="false" ng-click="list.makeEditable()">{{todo.title}}</p>
+        <md-icon class="md-secondary" md-font-family="material-icons" ng-click="list.toggleRight()"> alarm_add </md-icon>
     </md-list-item>
 
 </md-list>

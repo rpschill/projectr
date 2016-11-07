@@ -27,21 +27,27 @@
 
         }])
 
+        
+
+        .factory('DataFactory', function() {
+
+            return {
+                data: {
+                    ProjectName: 'Inbox'
+                },
+                update: function(name) {
+                    this.data.ProjectName = name;
+                }
+            };
+
+        })
+
 
         .factory('projects', ['$firebaseArray', function ($firebaseArray) {
 
             var ref = firebase.database().ref().child('projects');
 
             return $firebaseArray(ref);
-        }])
-
-
-
-        .factory('todos', ['$firebaseArray', '$locationProvider', function ($firebaseArray, $locationProvider) {
-
-            var project = $locationProvider.path();
-
-            var ref = firebase.database().ref().child('todos');
         }])
 
 
@@ -63,10 +69,6 @@
                 $mdSidenav('left').toggle();
             };
 
-            vm.toggleRight = function () {
-                $mdSidenav('right').toggle();
-            };
-
         })
 
 
@@ -82,15 +84,30 @@
         })
 
 
-        .controller('ListCtrl', function ($mdDialog) {
+        .controller('ListCtrl', function ($firebaseArray, $firebaseObject, $mdSidenav, projects, DataFactory) {
 
             var vm = this;
+
+            var data = DataFactory.data.ProjectName;
+            var ref = firebase.database().ref('todos').orderByChild('project').equalTo(data);
+            vm.todos = $firebaseArray(ref);
+
+            vm.toggleRight = function () {
+                $mdSidenav('right').toggle();
+            };
+
+
+            vm.makeEditable = function() {
+                angular.element.$attr('contenteditable', true);
+            };
 
         })
 
-        .controller('LeftCtrl', function ($mdSidenav, $mdDialog, projects) {
+        .controller('LeftCtrl', function ($mdSidenav, $mdDialog, projects, DataFactory) {
 
             var vm = this;
+
+            vm.data = DataFactory;
             
             vm.projects = projects;
 
@@ -111,6 +128,15 @@
                     });
                 });
             };
+
+
+            vm.setCurrentProject = function(project) {
+                var proj = vm.projects.$getRecord(project);
+                console.log(proj);
+                vm.data.update(proj.title);
+                console.log(vm.data.data);
+
+            }
 
         })
 
