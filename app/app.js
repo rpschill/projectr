@@ -84,30 +84,38 @@
         })
 
 
-        .controller('ListCtrl', function ($firebaseArray, $firebaseObject, $mdSidenav, projects, DataFactory) {
+        .controller('ListCtrl', function ($rootScope, $firebaseArray, $firebaseObject, $mdSidenav, projects, DataFactory) {
 
             var vm = this;
+            var scope = $rootScope;
 
-            var data = DataFactory.data.ProjectName;
-            var ref = firebase.database().ref('todos').orderByChild('project').equalTo(data);
-            vm.todos = $firebaseArray(ref);
+            vm.data = DataFactory.data.ProjectName;
+            vm.ref = firebase.database().ref('todos').orderByChild('project').equalTo(vm.data);
+            vm.todos = $firebaseArray(vm.ref);
 
             vm.toggleRight = function () {
                 $mdSidenav('right').toggle();
             };
 
-
-            vm.makeEditable = function() {
-                angular.element.$attr('contenteditable', true);
-            };
+            scope.$watch(
+                function() { return vm.data; },
+                function(newValue, oldValue) {
+                    if ( newValue !== oldValue ) {
+                        ref = firebase.database().ref('todos').orderByChild('project').equalTo(data);
+                        vm.todos = $firebaseArray(ref);
+                    }
+                }
+            );
 
         })
 
-        .controller('LeftCtrl', function ($mdSidenav, $mdDialog, projects, DataFactory) {
+        .controller('LeftCtrl', function ($mdSidenav, $mdDialog, $firebaseObject, projects, DataFactory) {
 
             var vm = this;
 
             vm.data = DataFactory;
+
+            vm.proj;
             
             vm.projects = projects;
 
@@ -131,10 +139,17 @@
 
 
             vm.setCurrentProject = function(project) {
-                var proj = vm.projects.$getRecord(project);
-                console.log(proj);
+                var proj;
+                console.log(project);
+                var ref = firebase.database().ref('projects/' + project);
+                console.log('ref: ' + ref);
+                //var projRec = vm.projects.$getRecord(project);
+                var obj = $firebaseObject(ref);
+                obj.$loaded()
+                    .then(function(data) {
+                        proj = data;
+                    });
                 vm.data.update(proj.title);
-                console.log(vm.data.data);
 
             }
 

@@ -2,7 +2,7 @@
 
     <md-list-item class="md-whiteframe-2dp" ng-repeat="todo in list.todos">
         <md-checkbox></md-checkbox>
-        <p contenteditable="false" ng-click="list.makeEditable()">{{todo.title}}</p>
+        <p>{{todo.title}}</p>
         <md-icon class="md-secondary" md-font-family="material-icons" ng-click="list.toggleRight()"> alarm_add </md-icon>
     </md-list-item>
 
