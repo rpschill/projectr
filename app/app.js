@@ -51,6 +51,16 @@
         }])
 
 
+
+        .factory('todos', ['$firebaseArray', 'DataFactory', function($firebaseArray, DataFactory) {
+
+            var data = DataFactory.data;
+            var ref = firebase.database().ref('todos').orderByChild('project').equalTo(data.ProjectName);
+            
+            return $firebaseArray(ref);
+        }])
+
+
         .controller('AppCtrl', function ($mdSidenav) {
 
             var vm = this;
@@ -84,20 +94,28 @@
         })
 
 
-        .controller('ListCtrl', function ($rootScope, $firebaseArray, $firebaseObject, $mdSidenav, projects, DataFactory) {
+        .controller('ListCtrl', function ($rootScope, $firebaseArray, $firebaseObject, $mdSidenav, projects, DataFactory, todos) {
 
             var vm = this;
-            var scope = $rootScope;
+            
+            vm.todos;
+            console.log(todos);
+            console.log(vm.todos);
 
-            vm.data = DataFactory.data.ProjectName;
-            vm.ref = firebase.database().ref('todos').orderByChild('project').equalTo(vm.data);
-            vm.todos = $firebaseArray(vm.ref);
+            todos.$loaded()
+                .then(function(data) {
+                    vm.todos = data;
+                    console.log(vm.todos);
+                });
+
+
+            vm.data = DataFactory.data;
 
             vm.toggleRight = function () {
                 $mdSidenav('right').toggle();
             };
 
-            scope.$watch(
+           /* vm.$watch(
                 function() { return vm.data; },
                 function(newValue, oldValue) {
                     if ( newValue !== oldValue ) {
@@ -105,7 +123,7 @@
                         vm.todos = $firebaseArray(ref);
                     }
                 }
-            );
+            );*/
 
         })
 
@@ -148,8 +166,11 @@
                 obj.$loaded()
                     .then(function(data) {
                         proj = data;
+                        DataFactory.update(proj.title);
+                        console.log(proj.title);
+                        console.log(DataFactory.data.ProjectName);
                     });
-                vm.data.update(proj.title);
+                
 
             }
 
