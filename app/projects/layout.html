@@ -1,0 +1,54 @@
+<div layout="column" ng-controller="AppCtrl as appCtrl">
+
+    <div data-ng-include="'app/layout/topnav.html'"></div>
+
+    <section layout="row" layout-align="space-between center stretch" flex>
+
+        <div data-ng-include="'app/projects/leftnav.html'" flex></div>
+
+        <section flex="50" ng-controller="ListCtrl as list">
+
+            <md-list >
+
+                <md-list-item class="md-whiteframe-2dp" ng-repeat="todo in list.todos">
+                    <md-checkbox></md-checkbox>
+                    <p>{{todo.title}}</p>
+
+                    <md-fab-speed-dial md-direction="left" class="md-scale" >
+                        <md-fab-trigger>
+                            <md-button aria-label="menu" class="md-fab md-warn md-mini">
+                                <md-icon md-font-family="material-icons"> menu </md-icon>
+                            </md-button>
+                        </md-fab-trigger>
+
+                        <md-fab-actions>
+                            <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
+                                <md-icon md-font-family="material-icons"> alarm_add </md-icon>
+                            </md-button>
+                            <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.deleteTodo(todo, $event)">
+                                <md-icon md-font-family="material-icons"> delete </md-icon>
+                            </md-button>
+                        </md-fab-actions>
+                    </md-fab-speed-dial>
+
+                </md-list-item>
+
+            </md-list>
+
+            <form id="newTodo">
+
+                <md-input-container>
+                    <label>New Todo Item</label>
+                    <input ng-model="list.title">
+                </md-input-container>
+                <md-button class="md-raised md-primary" type="submit" ng-click="list.addTodo()">Add Todo</md-button>
+
+            </form>
+
+        </section>
+
+        <div data-ng-include="'app/projects/rightnav.html'" flex></div>
+
+    </section>
+
+</div>

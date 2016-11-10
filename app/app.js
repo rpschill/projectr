@@ -25,22 +25,17 @@
             firebase.initializeApp(config);
 
 
+            $routeProvider
+
+                .when('/project/:projId', {
+                    templateUrl: 'app/projects/layout.html'
+                })
+
+                .otherwise({redirectTo: '/'});
+
+
         }])
 
-        
-
-        .factory('DataFactory', function() {
-
-            return {
-                data: {
-                    ProjectName: 'Inbox'
-                },
-                update: function(name) {
-                    this.data.ProjectName = name;
-                }
-            };
-
-        })
 
 
         .factory('projects', ['$firebaseArray', function ($firebaseArray) {
@@ -52,11 +47,11 @@
 
 
 
-        .factory('todos', ['$firebaseArray', 'DataFactory', function($firebaseArray, DataFactory) {
+        .factory('todos', ['$firebaseArray', '$routeParams', function ($firebaseArray, $routeParams) {
 
-            var data = DataFactory.data;
-            var ref = firebase.database().ref('todos').orderByChild('project').equalTo(data.ProjectName);
-            
+            var projTitle = $routeParams.projId;
+            var ref = firebase.database().ref().child('todos'); //.orderByChild('project').equalTo(projTitle);
+
             return $firebaseArray(ref);
         }])
 
@@ -91,53 +86,75 @@
                 $mdSidenav('right').close();
             };
 
+            
+
         })
 
 
-        .controller('ListCtrl', function ($rootScope, $firebaseArray, $firebaseObject, $mdSidenav, projects, DataFactory, todos) {
+        .controller('ListCtrl', function ($route, $routeParams, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects) {
 
             var vm = this;
-            
-            vm.todos;
-            console.log(todos);
-            console.log(vm.todos);
 
-            todos.$loaded()
-                .then(function(data) {
-                    vm.todos = data;
-                    console.log(vm.todos);
-                });
+            vm.params = $routeParams;
 
+            var refTodo = firebase.database().ref().child('todos');
+            var ref = refTodo.orderByChild('project').equalTo(vm.params.projId);
 
-            vm.data = DataFactory.data;
+            vm.todos = $firebaseArray(ref);
+
+            vm.title = '';
 
             vm.toggleRight = function () {
                 $mdSidenav('right').toggle();
             };
 
-           /* vm.$watch(
-                function() { return vm.data; },
-                function(newValue, oldValue) {
-                    if ( newValue !== oldValue ) {
-                        ref = firebase.database().ref('todos').orderByChild('project').equalTo(data);
-                        vm.todos = $firebaseArray(ref);
-                    }
-                }
-            );*/
+            vm.addTodo = function() {
+                var todoData = {
+                    title: vm.title,
+                    project: vm.params.projId,
+                    complete: false,
+                    createdDate: firebase.database.ServerValue.TIMESTAMP,
+                    isOpen: false
+                };
+
+                var newKey = refTodo.push().key;
+                vm.title = '';
+
+                var updates = {};
+
+                updates['/todos/' + newKey] = todoData;
+
+                return firebase.database().ref().update(updates);
+
+            };
+
+
+            vm.deleteTodo = function(todo, ev) {
+                var confirm = $mdDialog.confirm()
+                    .title('Would you like to delete this todo item?')
+                    .textContent('This will delete the item forever.')
+                    .targetEvent(ev)
+                    .ok('Delete forever')
+                    .cancel("No! Don't do it!");
+
+                $mdDialog.show(confirm).then(function() {
+                    vm.todos.$remove(todo);
+                }, function() {
+                    console.log('This item was not removed');
+                });
+            };
 
         })
 
-        .controller('LeftCtrl', function ($mdSidenav, $mdDialog, $firebaseObject, projects, DataFactory) {
+        .controller('LeftCtrl', function ($route, $mdSidenav, $mdDialog, $firebaseObject, projects) {
 
             var vm = this;
 
-            vm.data = DataFactory;
-
             vm.proj;
-            
+
             vm.projects = projects;
 
-            vm.addProject = function(ev) {
+            vm.addProject = function (ev) {
                 var confirm = $mdDialog.prompt()
                     .title('Create new project')
                     .placeholder('Enter a title for your project')
@@ -147,7 +164,7 @@
                     .ok('Create')
                     .cancel('Cancel');
 
-                $mdDialog.show(confirm).then(function(result) {
+                $mdDialog.show(confirm).then(function (result) {
                     vm.title = result;
                     vm.projects.$add({
                         title: vm.title
@@ -156,7 +173,7 @@
             };
 
 
-            vm.setCurrentProject = function(project) {
+            vm.setCurrentProject = function (project) {
                 var proj;
                 console.log(project);
                 var ref = firebase.database().ref('projects/' + project);
@@ -164,13 +181,13 @@
                 //var projRec = vm.projects.$getRecord(project);
                 var obj = $firebaseObject(ref);
                 obj.$loaded()
-                    .then(function(data) {
+                    .then(function (data) {
                         proj = data;
                         DataFactory.update(proj.title);
                         console.log(proj.title);
                         console.log(DataFactory.data.ProjectName);
                     });
-                
+
 
             }
 
