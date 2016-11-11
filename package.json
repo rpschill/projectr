@@ -10,7 +10,7 @@
     "lite-server": "^2.2.2"
   },
   "dependencies": {
-    "angular-contenteditable": "^0.3.9",
-    "medium-editor": "^5.22.1"
+    "medium-editor": "^5.22.1",
+    "ng-sortable": "^1.3.7"
   }
 }

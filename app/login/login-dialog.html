@@ -1,0 +1,32 @@
+<md-dialog aria-label="Sign in">
+    
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Sign in</h2>
+                <span flex></span>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content>
+            <div class="md-dialog-content">
+                <md-input-container>
+                    <label>Email</label>
+                    <input type="email" ng-model="email" md-autofocus>
+                </md-input-container>
+                <md-input-container>
+                    <label>Password</label>
+                    <input type="password" ng-model="password">
+                </md-input-container>
+            </div>
+
+            <span>{{signInErrorMessage}}</span>
+
+        </md-dialog-content>
+
+        <md-dialog-actions layout="column">
+            <md-button ng-click="signIn(email, password)">Sign in</md-button>
+            <md-button>Forgot password?</md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

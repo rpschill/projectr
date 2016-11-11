@@ -1,0 +1,13 @@
+<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="home-right">
+
+    <md-toolbar class="md-hue-2">
+        <div class="md-toolbar-tools" layout="row" layout-align="space-between center">
+            <md-button ng-click="home.close('home-right')">
+                <md-icon md-font-set="material-icons"> clear </md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-content layout-padding ng-controller="RightNavCtrl as rightnav">
+        <p>More sidebar content</p>
+    </md-content>
+</md-sidenav>

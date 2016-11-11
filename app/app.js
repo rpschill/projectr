@@ -8,6 +8,14 @@
         'firebase'
     ])
 
+        .run(['$rootScope', '$location', function ($rootScope, $location) {
+            $rootScope.$on('$routeChangeError', function (event, next, previous, error) {
+                if (error === 'AUTH_REQUIRED') {
+                    $location.path('/login');
+                }
+            });
+        }])
+
         .config(['$mdThemingProvider', '$locationProvider', '$routeProvider', function ($mdThemingProvider, $locationProvider, $routeProvider) {
 
             $mdThemingProvider
@@ -27,14 +35,35 @@
 
             $routeProvider
 
-                .when('/project/:projId', {
-                    templateUrl: 'app/projects/layout.html'
+                .when('/', {
+                    templateUrl: 'app/login/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', function(Auth) {
+                            return Auth.$waitForSignIn();
+                        }]
+                    }
                 })
 
-                .otherwise({redirectTo: '/'});
+                .when('/project/:projId', {
+                    templateUrl: 'app/projects/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .otherwise({ redirectTo: '/' });
 
 
         }])
+
+
+
+        .factory('Auth', ['$firebaseAuth', function($firebaseAuth) {
+            return $firebaseAuth();
+        }])
+
 
 
 
@@ -47,6 +76,7 @@
 
 
 
+
         .factory('todos', ['$firebaseArray', '$routeParams', function ($firebaseArray, $routeParams) {
 
             var projTitle = $routeParams.projId;
@@ -55,6 +85,129 @@
             return $firebaseArray(ref);
         }])
 
+
+
+
+        // Directives
+
+        .directive('contenteditable', function() {
+            return {
+                require: 'ngModel',
+                link: function(scope, element, attrs, ngModel) {
+
+                    function read() {
+                        ngModel.$setViewValue(element.html());
+                    };
+
+                    ngModel.$render = function() {
+                        element.html(ngModel.$viewValue || '');
+                    };
+
+                    element.bind('blur keyup change', function() {
+                        scope.$apply(read);
+                    });
+                }
+            }
+        })
+
+
+
+
+        // Home page / login / auth
+
+        .controller('AuthCtrl', function(Auth, $location, $timeout) {
+
+            var vm = this;
+
+            vm.auth = Auth;
+            vm.user = vm.auth.$getAuth();
+
+
+        })
+
+        .controller('HomeCtrl', function ($mdSidenav, $mdDialog, Auth) {
+            var vm = this;
+
+            vm.toggleRight = function () {
+                $mdSidenav('home-right').toggle();
+            };
+
+            vm.close = function () {
+                $mdSidenav('home-right').close();
+            };
+
+
+
+            vm.showSignIn = function (ev) {
+                $mdDialog.show({
+                    controller: DialogController,
+                    templateUrl: 'app/login/login-dialog.html',
+                    parent: angular.element(document.body),
+                    targetEvent: ev,
+                    clickOutsideToClose: true
+                })
+                    .then(function () {
+                        console.log('You clicked the Sign In button');
+                    }, function () {
+                        console.log('You said you forgot your password');
+                    });
+            };
+
+            function DialogController($scope, $mdDialog, $location, Auth) {
+
+                $scope.auth = Auth;
+                $scope.user = $scope.auth.$getAuth();
+
+                $scope.email = null;
+                $scope.password = null;
+
+                $scope.signInErrorMessage = '';
+
+                $scope.signIn = function() {
+                    $scope.auth.$signInWithEmailAndPassword($scope.email, $scope.password).then(function(firebaseUser) {
+                        console.log('Signed in as: ', firebaseUser.uid);
+                        $location.path('/project/-KVkktsH-a4oC2tmPb_-');
+                        $mdDialog.hide();
+                    }).catch(function(error) {
+                        console.error('Authentication failed: ', error);
+                        $scope.signInErrorMessage = 'Sign in failed.'
+                    });
+                };
+
+                $scope.hide = function () {
+                    $mdDialog.hide();
+                };
+
+                $scope.cancel = function () {
+                    $mdDialog.cancel();
+                };
+            }
+        })
+
+
+
+
+        .controller('TopNavCtrl', function ($mdSidenav, $mdDialog) {
+            var vm = this;
+
+
+        })
+
+
+
+
+        .controller('RightNavCtrl', function ($mdSidenav) {
+
+            var vm = this;
+
+
+        })
+
+
+
+
+
+        // Main application
 
         .controller('AppCtrl', function ($mdSidenav) {
 
@@ -65,6 +218,9 @@
             };
 
         })
+
+
+
 
         .controller('TopCtrl', function ($mdSidenav) {
 
@@ -86,9 +242,11 @@
                 $mdSidenav('right').close();
             };
 
-            
+
 
         })
+
+
 
 
         .controller('ListCtrl', function ($route, $routeParams, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects) {
@@ -108,13 +266,14 @@
                 $mdSidenav('right').toggle();
             };
 
-            vm.addTodo = function() {
+            vm.addTodo = function () {
                 var todoData = {
                     title: vm.title,
                     project: vm.params.projId,
                     complete: false,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
-                    isOpen: false
+                    isOpen: false,
+                    dueDate: ''
                 };
 
                 var newKey = refTodo.push().key;
@@ -129,7 +288,7 @@
             };
 
 
-            vm.deleteTodo = function(todo, ev) {
+            vm.deleteTodo = function (todo, ev) {
                 var confirm = $mdDialog.confirm()
                     .title('Would you like to delete this todo item?')
                     .textContent('This will delete the item forever.')
@@ -137,22 +296,42 @@
                     .ok('Delete forever')
                     .cancel("No! Don't do it!");
 
-                $mdDialog.show(confirm).then(function() {
+                $mdDialog.show(confirm).then(function () {
                     vm.todos.$remove(todo);
-                }, function() {
+                }, function () {
                     console.log('This item was not removed');
                 });
             };
 
+
+            vm.showDatePicker = false;
+
+
+            vm.newDate = new Date();
+
+            vm.setDueDate = function(todo) {
+                todo.dueDate = vm.newDate.$getTime();
+                vm.todos.$save(todo).then(function(ref) {
+                    ref.key === todo.$id;
+                });
+                vm.showDatePicker = false;
+            };
+
         })
 
-        .controller('LeftCtrl', function ($route, $mdSidenav, $mdDialog, $firebaseObject, projects) {
+
+
+        .controller('LeftCtrl', function ($route, $mdSidenav, $mdDialog, $firebaseObject, Auth, projects) {
 
             var vm = this;
 
             vm.proj;
 
             vm.projects = projects;
+
+            vm.auth = Auth;
+            vm.user = vm.auth.$getAuth();
+            vm.user_id = vm.user.uid;
 
             vm.addProject = function (ev) {
                 var confirm = $mdDialog.prompt()
@@ -167,7 +346,8 @@
                 $mdDialog.show(confirm).then(function (result) {
                     vm.title = result;
                     vm.projects.$add({
-                        title: vm.title
+                        title: vm.title,
+                        user_id: vm.user_id
                     });
                 });
             };
