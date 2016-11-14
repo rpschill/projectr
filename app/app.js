@@ -38,7 +38,7 @@
                 .when('/', {
                     templateUrl: 'app/login/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', function(Auth) {
+                        'currentAuth': ['Auth', function (Auth) {
                             return Auth.$waitForSignIn();
                         }]
                     }
@@ -47,7 +47,7 @@
                 .when('/project/:projId', {
                     templateUrl: 'app/projects/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
                             return Auth.$requireSignIn();
                         }]
                     }
@@ -60,7 +60,7 @@
 
 
 
-        .factory('Auth', ['$firebaseAuth', function($firebaseAuth) {
+        .factory('Auth', ['$firebaseAuth', function ($firebaseAuth) {
             return $firebaseAuth();
         }])
 
@@ -90,20 +90,20 @@
 
         // Directives
 
-        .directive('contenteditable', function() {
+        .directive('contenteditable', function () {
             return {
                 require: 'ngModel',
-                link: function(scope, element, attrs, ngModel) {
+                link: function (scope, element, attrs, ngModel) {
 
                     function read() {
                         ngModel.$setViewValue(element.html());
                     };
 
-                    ngModel.$render = function() {
+                    ngModel.$render = function () {
                         element.html(ngModel.$viewValue || '');
                     };
 
-                    element.bind('blur keyup change', function() {
+                    element.bind('blur keyup change', function () {
                         scope.$apply(read);
                     });
                 }
@@ -112,10 +112,106 @@
 
 
 
+        .directive('onEnter', function () {
+            return function (scope, element, attrs) {
+                element.bind('keydown keypress', function (event) {
+                    if (event.which === 13) {
+                        event.preventDefault();
+                        scope.$apply(function () {
+                            scope.$eval(attrs.onEnter);
+                        });
+                    }
+                });
+            };
+        })
+
+
+
+        .directive('resetFocusOnNew', function ($timeout) {
+            return function (scope, element, attrs, ctrl) {
+                if (scope.$last) {
+                    $timeout(function () {
+                        element[0].focus();
+                    });
+                }
+                scope.$watch('$last', function () {
+                    if (scope.$last) {
+                        $timeout(function () {
+                            element[0].focus();
+                        });
+                    }
+                });
+            };
+        })
+
+
+
+        .directive('focusIter', function () {
+            return function (scope, elem, attrs) {
+                var atomSelector = attrs.focusIter;
+
+                elem.on('keyup', atomSelector, function (e) {
+                    var atoms = elem.find(atomSelector),
+                        toAtom = null;
+
+                    for (var i = atoms.length - 1; i >= 0; i--) {
+                        if (atoms[i] === e.target) {
+                            if (e.keyCode === 38) {
+                                toAtom = atoms[i - 1];
+                            }
+                            if (e.keyCode === 40) {
+                                toAtom = atoms[i + 1];
+                            }
+                            else if (e.keyCode === 13) {
+                                toAtom = atoms[i + 1];
+                            }
+                            break;
+                        }
+                    }
+
+                    if (toAtom) toAtom.focus();
+
+                });
+
+                elem.on('keydown', atomSelector, function (e) {
+                    if (e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 13)
+                        e.preventDefault();
+                });
+            };
+        })
+
+
+
+        .directive('deleteTaskListener', function () {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+                    element.focus(function () {
+                        attrs.$observe('ngModel', function (todo) {
+                            element.bind('keydown keypress', function (event) {
+                                if (event.which === 8) {
+                                    if (scope.todo.title === '') {
+                                        scope.$apply(function () {
+                                            scope.$eval(attrs.deleteTaskListener);
+                                        });
+
+                                        event.preventDefault();
+                                    }
+                                }
+                            });
+                        });
+                    });
+                }
+            };
+        })
+
+
+
+
 
         // Home page / login / auth
 
-        .controller('AuthCtrl', function(Auth, $location, $timeout) {
+        .controller('AuthCtrl', function (Auth, $location, $timeout) {
 
             var vm = this;
 
@@ -163,12 +259,12 @@
 
                 $scope.signInErrorMessage = '';
 
-                $scope.signIn = function() {
-                    $scope.auth.$signInWithEmailAndPassword($scope.email, $scope.password).then(function(firebaseUser) {
+                $scope.signIn = function () {
+                    $scope.auth.$signInWithEmailAndPassword($scope.email, $scope.password).then(function (firebaseUser) {
                         console.log('Signed in as: ', firebaseUser.uid);
                         $location.path('/project/-KVkktsH-a4oC2tmPb_-');
                         $mdDialog.hide();
-                    }).catch(function(error) {
+                    }).catch(function (error) {
                         console.error('Authentication failed: ', error);
                         $scope.signInErrorMessage = 'Sign in failed.'
                     });
@@ -273,7 +369,8 @@
                     complete: false,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
                     isOpen: false,
-                    dueDate: ''
+                    dueDate: '',
+                    showDatePicker: false
                 };
 
                 var newKey = refTodo.push().key;
@@ -304,18 +401,32 @@
             };
 
 
-            vm.showDatePicker = false;
+            vm.removeTodo = function(todo) {
+                vm.todos.$remove(todo);
+            };
+
+
+
 
 
             vm.newDate = new Date();
 
-            vm.setDueDate = function(todo) {
-                todo.dueDate = vm.newDate.$getTime();
-                vm.todos.$save(todo).then(function(ref) {
+            vm.setDueDate = function (todo) {
+
+                todo.dueDate = vm.newDate.getTime();
+                todo.showDatePicker = false;
+                vm.todos.$save(todo).then(function (ref) {
                     ref.key === todo.$id;
                 });
-                vm.showDatePicker = false;
+                vm.newDate = new Date();
             };
+
+
+            vm.updateTodo = function (todo) {
+                vm.todos.$save(todo).then(function (ref) {
+                    ref.key === todo.$id;
+                });
+            }
 
         })
 
