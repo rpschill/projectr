@@ -2,17 +2,24 @@
 
     <div data-ng-include="'app/layout/topnav.html'"></div>
 
-    <section layout="row" layout-align="space-between center stretch" flex>
+    <div data-ng-include="'app/projects/leftnav.html'"></div>
 
-        <div data-ng-include="'app/projects/leftnav.html'" flex></div>
+    <section>
 
-        <section flex="75" ng-controller="ListCtrl as list" layout="row" layout-align="space-between">
+        <section ng-controller="ListCtrl as list" layout="row" layout-align="center space-around" layout-margin>
 
-            <md-list flex focus-iter="[focus-here]">
+            <span flex="15"></span>
+            <div flex="5">
+                <md-button class="md-primary md-fab" ng-click="list.addTodo()">
+                    <md-icon md-font-set="material-icons"> add </md-icon>
+                </md-button>
+            </div>
 
-                <md-list-item class="md-whiteframe-2dp fade" ng-repeat="todo in list.todos">
-                        <md-checkbox ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
-                    <p class="todo-list-item" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()" focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
+            <md-list flex="55" focus-iter="[focus-here]">
+
+                <md-list-item class="md-whiteframe-2dp fade" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
+                        <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
+                    <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()" focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
 
                     <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
                     <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
@@ -41,6 +48,9 @@
                 </md-list-item>
 
             </md-list>
+            <span flex>
+                <md-button class="md-primary md-raised center" ng-href="#/dashboard">Go to Dashboard</md-button>
+            </span>
 
 
 

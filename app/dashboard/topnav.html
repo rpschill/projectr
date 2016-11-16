@@ -1,13 +1,11 @@
 <md-toolbar class="md-hue-2" ng-controller="TopCtrl as top">
     <div class="md-toolbar-tools">
-        <md-button class="md-icon-button" ng-click="top.toggleLeft()">
-            <md-icon md-font-set="material-icons"> menu </md-icon>
-        </md-button>
+        <span></span>
         <h2>
-            <a class="md-display-1" ng-href="#/dashboard">projectr</a>
+            <a class="md-display-1" href="/dashboard">projectr</a>
         </h2>
         <span flex>
-            <h2 class="proj-title">{{top.project.title}}</h2>
+            <h2 class="proj-title">Dashboard</h2>
         </span>
         
         <md-button ng-click="top.logOut()"><md-icon md-font-set="material-icons" id="account_circle"> account_circle </md-icon></md-button>

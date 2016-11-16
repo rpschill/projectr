@@ -2,6 +2,7 @@
     'use strict';
 
     angular.module('app', [
+        'ngAnimate',
         'ngRoute',
         'ngMessages',
         'ngMaterial',
@@ -11,7 +12,7 @@
         .run(['$rootScope', '$location', function ($rootScope, $location) {
             $rootScope.$on('$routeChangeError', function (event, next, previous, error) {
                 if (error === 'AUTH_REQUIRED') {
-                    $location.path('/login');
+                    $location.path('/');
                 }
             });
         }])
@@ -44,6 +45,15 @@
                     }
                 })
 
+                .when('/dashboard', {
+                    templateUrl: 'app/dashboard/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
                 .when('/project/:projId', {
                     templateUrl: 'app/projects/layout.html',
                     resolve: {
@@ -67,9 +77,10 @@
 
 
 
-        .factory('projects', ['$firebaseArray', function ($firebaseArray) {
+        .factory('projects', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
 
             var ref = firebase.database().ref().child('projects');
+
 
             return $firebaseArray(ref);
         }])
@@ -249,10 +260,29 @@
                     });
             };
 
-            function DialogController($scope, $mdDialog, $location, Auth) {
 
+            vm.showRegister = function (ev) {
+                $mdDialog.show({
+                    controller: DialogController,
+                    templateUrl: 'app/login/register-dialog.html',
+                    parent: angular.element(document.body),
+                    targetEvent: ev,
+                    clickOutsideToClose: true
+                }).then(function () {
+                    console.log('You clicked the Sign Up button');
+                }, function () {
+                    console.log('You said you already have an account');
+                });
+            };
+
+
+
+            function DialogController($scope, $mdDialog, $location, $timeout, $firebaseArray, $firebaseObject, Auth) {
+
+                var ref = firebase.database().ref().child('/users');
                 $scope.auth = Auth;
                 $scope.user = $scope.auth.$getAuth();
+
 
                 $scope.email = null;
                 $scope.password = null;
@@ -262,13 +292,60 @@
                 $scope.signIn = function () {
                     $scope.auth.$signInWithEmailAndPassword($scope.email, $scope.password).then(function (firebaseUser) {
                         console.log('Signed in as: ', firebaseUser.uid);
-                        $location.path('/project/-KVkktsH-a4oC2tmPb_-');
+                        $location.path('/dashboard');
                         $mdDialog.hide();
                     }).catch(function (error) {
                         console.error('Authentication failed: ', error);
                         $scope.signInErrorMessage = 'Sign in failed.'
                     });
                 };
+
+                $scope.register = function () {
+                    $scope.id = null;
+                    $scope.auth.$createUserWithEmailAndPassword($scope.email, $scope.password).then(function (firebaseUser) {
+                        $scope.uid = firebaseUser.uid;
+                        console.log("User " + $scope.uid + " created successfully");
+                    }).then(function () {
+                        firebase.database().ref('users/' + $scope.uid).set({
+                            email: $scope.email,
+                            firstName: '',
+                            lastName: '',
+                            createdDate: firebase.database.ServerValue.TIMESTAMP
+                        }).then(function () {
+                            var ref = firebase.database().ref('/projects').push({
+                                title: 'Inbox',
+                                user_id: $scope.uid
+                            }).then(function (ref) {
+                                console.log('Project created');
+                                $scope.id = ref.key;
+                                $mdDialog.hide();
+                                $location.path('/project/' + $scope.id);
+                            });
+                        }).then(function () {
+
+                            var todoData = {
+                                title: '',
+                                project: $scope.id,
+                                complete: false,
+                                createdDate: firebase.database.ServerValue.TIMESTAMP,
+                                isOpen: false,
+                                dueDate: '',
+                                showDatePicker: false,
+                                user_id: $scope.uid
+                            };
+
+                            var newKey = firebase.database().ref('/todos').push().key;
+
+                            var updates = {};
+
+                            updates['/todos/' + newKey] = todoData;
+
+                            firebase.database().ref().update(updates);
+                        });
+                    });
+                };
+
+
 
                 $scope.hide = function () {
                     $mdDialog.hide();
@@ -278,6 +355,7 @@
                     $mdDialog.cancel();
                 };
             }
+
         })
 
 
@@ -301,6 +379,27 @@
 
 
 
+        // Dashboard
+
+        .controller('DashCtrl', function($firebaseArray, $location, Auth) {
+
+            var vm = this;
+
+            vm.auth = Auth.$getAuth();
+            vm.user = vm.auth.uid;
+
+            var ref = firebase.database().ref('/projects').orderByChild('user_id').equalTo(vm.user);
+
+            vm.projects = $firebaseArray(ref);
+
+            vm.openProject = function(proj) {
+                var projId = vm.projects.$keyAt(proj);
+                $location.path('/project/' + projId);
+            }
+        })
+
+
+
 
 
         // Main application
@@ -318,13 +417,36 @@
 
 
 
-        .controller('TopCtrl', function ($mdSidenav) {
+        .controller('TopCtrl', function ($routeParams, $location, $firebaseObject, $mdSidenav, Auth) {
 
             var vm = this;
+
+            vm.params = $routeParams;
+
+            vm.auth = Auth;
+            
+
+            var ref = firebase.database().ref('/projects/' + vm.params.projId);
+            vm.project = $firebaseObject(ref);
+            vm.projTitle = vm.project.title;
 
             vm.toggleLeft = function () {
                 $mdSidenav('left').toggle();
             };
+
+            vm.auth.$onAuthStateChanged(function(firebaseUser) {
+                if (firebaseUser) {
+                    console.log('Signed in');
+                }
+                else {
+                    $location.path('/');
+                }
+            });
+
+            vm.logOut = function() {
+                vm.auth.$signOut();
+            }
+
 
         })
 
@@ -345,14 +467,16 @@
 
 
 
-        .controller('ListCtrl', function ($route, $routeParams, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects) {
+        .controller('ListCtrl', function ($route, $routeParams, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth) {
 
             var vm = this;
 
             vm.params = $routeParams;
+            vm.auth = Auth;
+            vm.user = vm.auth.$getAuth();
 
-            var refTodo = firebase.database().ref().child('todos');
-            var ref = refTodo.orderByChild('project').equalTo(vm.params.projId);
+            var ref = firebase.database().ref('/todos').orderByChild('user_id').equalTo(vm.user.uid);
+
 
             vm.todos = $firebaseArray(ref);
 
@@ -370,10 +494,11 @@
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
                     isOpen: false,
                     dueDate: '',
-                    showDatePicker: false
+                    showDatePicker: false,
+                    user_id: vm.user.uid
                 };
 
-                var newKey = refTodo.push().key;
+                var newKey = firebase.database().ref('/todos').push().key;
                 vm.title = '';
 
                 var updates = {};
@@ -401,12 +526,14 @@
             };
 
 
-            vm.removeTodo = function(todo) {
+            vm.removeTodo = function (todo) {
                 vm.todos.$remove(todo);
             };
 
 
-
+            vm.projFilter = function(todo) {
+                return todo.project == vm.params.projId ? true : false;
+            };
 
 
             vm.newDate = new Date();
@@ -426,23 +553,26 @@
                 vm.todos.$save(todo).then(function (ref) {
                     ref.key === todo.$id;
                 });
+
+                if (todo.complete) {
+
+                }
             }
 
         })
 
 
 
-        .controller('LeftCtrl', function ($route, $mdSidenav, $mdDialog, $firebaseObject, Auth, projects) {
+        .controller('LeftCtrl', function ($route, $mdSidenav, $mdDialog, $firebaseArray, $firebaseObject, Auth) {
 
             var vm = this;
-
-            vm.proj;
-
-            vm.projects = projects;
 
             vm.auth = Auth;
             vm.user = vm.auth.$getAuth();
             vm.user_id = vm.user.uid;
+
+            var ref = firebase.database().ref('/projects').orderByChild('user_id').equalTo(vm.user_id);
+            vm.projects = $firebaseArray(ref);
 
             vm.addProject = function (ev) {
                 var confirm = $mdDialog.prompt()
