@@ -17,7 +17,7 @@
 
             <md-list flex="55" focus-iter="[focus-here]">
 
-                <md-list-item class="md-whiteframe-2dp fade" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
+                <md-list-item class="md-whiteframe-2dp fade todos" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
                         <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
                     <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()" focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
 

@@ -24,7 +24,7 @@ h2.proj-title {
     font-weight: 700;
 }
 
-md-list-item {
+md-list-item.todos {
     font-size: 16px;
     font-weight: 400;
 }

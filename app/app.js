@@ -388,14 +388,66 @@
             vm.auth = Auth.$getAuth();
             vm.user = vm.auth.uid;
 
-            var ref = firebase.database().ref('/projects').orderByChild('user_id').equalTo(vm.user);
+            var folderRef = firebase.database().ref('/folders').orderByChild(vm.user).equalTo(true);
+            
 
-            vm.projects = $firebaseArray(ref);
+            vm.folders = $firebaseArray(folderRef);
+            //vm.projects = $firebaseArray(projRef);
+
+            vm.showInput = false;
+            vm.showProj = false;
+            vm.title = '';
+            vm.projTitle = '';
 
             vm.openProject = function(proj) {
                 var projId = vm.projects.$keyAt(proj);
                 $location.path('/project/' + projId);
-            }
+            };
+
+
+            vm.createFolder = function() {
+                var folderData = {
+                    title: vm.title,
+                    createdDate: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                vm.folderKey = firebase.database().ref('/folders').push().key;
+                vm.title = '';
+
+                var updates = {};
+
+                updates['/folders/' + vm.folderKey] = folderData;
+                updates['/users/' + vm.user + '/folders/' + vm.folderKey] = true;
+
+                firebase.database().ref().update(updates);
+
+                updates = {};
+
+                updates['/folders/' + vm.folderKey + '/' + vm.user] = true;
+                firebase.database().ref().update(updates);
+
+                vm.showInput = false;
+            };
+
+
+            vm.createProject = function(folder) {
+                var projectData = {
+                    title: vm.projTitle,
+                    createdDate: firebase.database.ServerValue.TIMESTAMP
+                };
+
+                vm.projectKey = firebase.database().ref('/projects').push().key;
+                vm.projTitle = '';
+
+                var updates = {};
+
+                updates['/projects/' + vm.projectKey] = projectData;
+                updates['/folders/' + folder + '/projects/' + vm.projectKey] = true;
+
+                firebase.database().ref().update(updates);
+
+                vm.showProj = false;
+            };
         })
 
 

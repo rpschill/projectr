@@ -2,23 +2,57 @@
 
     <div data-ng-include="'app/dashboard/topnav.html'"></div>
 
-    <section ng-controller="DashCtrl as dash" layout="row" layout-align="center space-around">
-        
-        <span flex="20">
-            <h2 class="center">Projects:</h2>
-        </span>
-        <md-list flex="60" layout="column">
+    <div ng-controller="DashCtrl as dash">
 
-            <md-list-item ng-repeat="proj in dash.projects" class="md-whiteframe-4dp" ng-click="dash.openProject(proj)">
-                <h3 class="proj-head">{{proj.title}}</h3>
-                <md-button class="md-primary md-secondary">Edit</md-button>
-                <md-button class="md-primary md-secondary">Delete</md-button>
-            </md-list-item>
+        <div layout="row" flex="100">
+            <md-button class="md-fab md-primary" ng-click="dash.showInput = !dash.showInput">
+                <md-icon md-font-set="material-icons"> add </md-icon>
+            </md-button>
 
-        </md-list>
-        
-        <span flex></span>
+            <div ng-show="dash.showInput">
+                <form name="newFolder" ng-submit="dash.createFolder()">
 
-    </section>
+                    <div>
+                        <md-input-container class="md-inline">
+                            <label>Title</label>
+                            <input ng-model="dash.title" autofocus>
+                        </md-input-container>
+
+                        <md-button class="md-raised md-primary" type="submit">New Folder</md-button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <section layout="row" layout-padding layout-align="start space-around">
+
+            <div flex="30">
+
+                <md-list>
+
+                    <md-list-item class="md-whiteframe-1dp" ng-repeat="folder in dash.folders" ng-click="showProjects()">
+                        <h2 class="folder-title">{{folder.title}}</h2>
+                        <md-icon class="md-secondary folder-icon material-icons"> chevron_right </md-icon>
+                    </md-list-item>
+                </md-list>
+                
+            </div>
+
+            <div flex="40" ng-show="projectView">
+
+                <md-list>
+
+                    <md-list-item class="md-whiteframe-1dp" ng-repeat="project in dash.projects" ng-href="#/project/{{project.$id}}">
+                        <h2 class="folder-title">{{project.title}}</h2>
+                        <md-icon class="md-secondary folder-icon material-icons"> chevron_right </md-icon>
+                    </md-list-item>
+
+                </md-list>
+
+            </div>
+
+        </section>
+
+    </div>
 
 </div>
