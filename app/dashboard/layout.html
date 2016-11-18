@@ -4,52 +4,87 @@
 
     <div ng-controller="DashCtrl as dash">
 
-        <div layout="row" flex="100">
-            <md-button class="md-fab md-primary" ng-click="dash.showInput = !dash.showInput">
-                <md-icon md-font-set="material-icons"> add </md-icon>
-            </md-button>
-
-            <div ng-show="dash.showInput">
-                <form name="newFolder" ng-submit="dash.createFolder()">
-
-                    <div>
-                        <md-input-container class="md-inline">
-                            <label>Title</label>
-                            <input ng-model="dash.title" autofocus>
-                        </md-input-container>
-
-                        <md-button class="md-raised md-primary" type="submit">New Folder</md-button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
         <section layout="row" layout-padding layout-align="start space-around">
 
-            <div flex="30">
+            <span flex="5"></span>
+
+            <div layout="row" flex="5">
+                <md-button class="md-fab md-primary md-mini" ng-click="dash.showInput = !dash.showInput">
+                    <md-icon md-font-set="material-icons"> add </md-icon>
+                </md-button>
+            </div>
+
+            <div flex="auto" layout="column">
+
+                <h3>Folders</h3>
 
                 <md-list>
 
-                    <md-list-item class="md-whiteframe-1dp" ng-repeat="folder in dash.folders" ng-click="showProjects()">
+                    <md-list-item class="md-whiteframe-1dp" ng-repeat="folder in dash.folders" ng-click="dash.showProjects(folder.$id)" ng-class="{active: folder.$id === dash.folder}">
                         <h2 class="folder-title">{{folder.title}}</h2>
                         <md-icon class="md-secondary folder-icon material-icons"> chevron_right </md-icon>
                     </md-list-item>
+
                 </md-list>
+
+                <div ng-show="dash.showInput" flex="100">
+                    <form name="newFolder" ng-submit="dash.createFolder()">
+
+                        <div>
+                            <md-input-container class="md-block">
+                                <label>Title</label>
+                                <input ng-model="dash.title" autofocus>
+                            </md-input-container>
+
+                            <md-button class="md-raised md-primary" type="submit">New Folder</md-button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+
+            <div flex="5" layout="row" ng-show="dash.showProjectInputButton">
                 
             </div>
 
-            <div flex="40" ng-show="projectView">
+            <div flex="40" ng-show="dash.projectView" class="fade">
 
-                <md-list>
+                <h3>Projects</h3>
 
-                    <md-list-item class="md-whiteframe-1dp" ng-repeat="project in dash.projects" ng-href="#/project/{{project.$id}}">
-                        <h2 class="folder-title">{{project.title}}</h2>
-                        <md-icon class="md-secondary folder-icon material-icons"> chevron_right </md-icon>
-                    </md-list-item>
+                <md-button class="md-fab md-primary md-mini" ng-click="dash.showProjectInput = !dash.showProjectInput">
+                    <md-icon md-font-set="material-icons"> add </md-icon>
+                </md-button>
 
-                </md-list>
+                <div flex layout="column" layout-padding layout-align="space-around">
+
+                    <md-list flex>
+
+                        <md-list-item class="md-whiteframe-1dp" ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.loadProject(project.$id)">
+                            <h2 class="folder-title">{{project.title}}</h2>
+                            <md-icon class="md-secondary folder-icon material-icons"> chevron_right </md-icon>
+                        </md-list-item>
+
+                    </md-list>
+
+                    <div flex ng-show="dash.showProjectInput">
+                        <form name="newProject" ng-submit="dash.createProject()">
+
+                            <div>
+                                <md-input-container class="md-block">
+                                    <label>Title</label>
+                                    <input ng-model="dash.projTitle" autofocus>
+                                </md-input-container>
+
+                                <md-button class="md-raised md-primary" type="submit">New Project</md-button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
 
             </div>
+
+            <span flex="5"></span>
 
         </section>
 

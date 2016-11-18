@@ -29,6 +29,10 @@ md-list-item.todos {
     font-weight: 400;
 }
 
+.active {
+    background-color: #FF6E40;
+}
+
 .fade {
     transition: 0.5s linear all;
     -webkit-transition: 0.5s linear all;

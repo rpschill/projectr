@@ -48,13 +48,13 @@
                 .when('/dashboard', {
                     templateUrl: 'app/dashboard/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
                             return Auth.$requireSignIn();
                         }]
                     }
                 })
 
-                .when('/project/:projId', {
+                .when('/folder/:folderId/project/:projId', {
                     templateUrl: 'app/projects/layout.html',
                     resolve: {
                         'currentAuth': ['Auth', '$location', function (Auth, $location) {
@@ -79,7 +79,7 @@
 
         .factory('projects', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
 
-            var ref = firebase.database().ref().child('projects');
+            var ref = firebase.database().ref('/projects');
 
 
             return $firebaseArray(ref);
@@ -96,6 +96,34 @@
             return $firebaseArray(ref);
         }])
 
+
+
+        .factory('folders', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
+
+            var auth = Auth.$getAuth();
+            var ref = firebase.database().ref('/folders').orderByChild(auth.uid).equalTo(true);
+
+            return $firebaseArray(ref);
+        }])
+
+
+
+        .factory('activeFolder', function () {
+
+            var activeFolder = {};
+
+            activeFolder.id = null;
+
+            activeFolder.setActive = function (folder) {
+                activeFolder.id = folder;
+            };
+
+            activeFolder.getActive = function () {
+                return activeFolder.id;
+            };
+
+            return activeFolder;
+        })
 
 
 
@@ -381,31 +409,30 @@
 
         // Dashboard
 
-        .controller('DashCtrl', function($firebaseArray, $location, Auth) {
+        .controller('DashCtrl', function ($location, $timeout, $firebaseArray, activeFolder, folders, projects) {
 
             var vm = this;
 
-            vm.auth = Auth.$getAuth();
-            vm.user = vm.auth.uid;
+            vm.activeFolder = activeFolder;
+            vm.folders = folders;
+            vm.projects = projects;
+            vm.folder;
 
-            var folderRef = firebase.database().ref('/folders').orderByChild(vm.user).equalTo(true);
-            
+            var ref = firebase.database().ref()
 
-            vm.folders = $firebaseArray(folderRef);
-            //vm.projects = $firebaseArray(projRef);
 
             vm.showInput = false;
             vm.showProj = false;
+            vm.showProjectInput = false;
+            vm.showProjectInputButton = false;
             vm.title = '';
             vm.projTitle = '';
 
-            vm.openProject = function(proj) {
-                var projId = vm.projects.$keyAt(proj);
-                $location.path('/project/' + projId);
-            };
+            vm.projectView = false;
+            vm.selectedIndex = null;
 
 
-            vm.createFolder = function() {
+            vm.createFolder = function () {
                 var folderData = {
                     title: vm.title,
                     createdDate: firebase.database.ServerValue.TIMESTAMP
@@ -430,10 +457,12 @@
             };
 
 
-            vm.createProject = function(folder) {
+            vm.createProject = function () {
+                var folder = activeFolder.getActive();
                 var projectData = {
                     title: vm.projTitle,
-                    createdDate: firebase.database.ServerValue.TIMESTAMP
+                    createdDate: firebase.database.ServerValue.TIMESTAMP,
+                    folder: activeFolder.getActive()
                 };
 
                 vm.projectKey = firebase.database().ref('/projects').push().key;
@@ -448,6 +477,54 @@
 
                 vm.showProj = false;
             };
+
+
+
+            vm.showProjects = function (folder) {
+                var active = activeFolder.getActive();
+                if (!vm.projectView && active == null) {
+                    activeFolder.setActive(folder);
+                    vm.folder = folder;
+                    vm.projectView = true;
+                    vm.showProjectInputButton = true;
+                }
+                else if (vm.projectView && active == folder) {
+                    vm.projectView = false;
+                    vm.showProjectInputButton = false;
+                    activeFolder.setActive(null);
+                    vm.folder = null;
+                }
+                else if (vm.projectView && active != folder) {
+                    $timeout(function () {
+                        vm.projectView = true;
+                        vm.showProjectInputButton = true;
+                        activeFolder.setActive(folder);
+                        vm.folder = folder;
+                    });
+                }
+            };
+
+
+            
+            vm.loadProject = function(project) {
+                $location.path('/folder/' + vm.folder + '/project/' + project);
+                vm.folder = null;
+                activeFolder.setActive(null);
+            };
+
+
+            vm.projectFilter = function (project) {
+                var active = activeFolder.getActive();
+                return project.folder == active ? true : false;
+            };
+
+
+
+            vm.selectFolder = function (i) {
+                vm.selectedIndex = i;
+            };
+
+
         })
 
 
@@ -476,7 +553,7 @@
             vm.params = $routeParams;
 
             vm.auth = Auth;
-            
+
 
             var ref = firebase.database().ref('/projects/' + vm.params.projId);
             vm.project = $firebaseObject(ref);
@@ -486,7 +563,7 @@
                 $mdSidenav('left').toggle();
             };
 
-            vm.auth.$onAuthStateChanged(function(firebaseUser) {
+            vm.auth.$onAuthStateChanged(function (firebaseUser) {
                 if (firebaseUser) {
                     console.log('Signed in');
                 }
@@ -495,7 +572,7 @@
                 }
             });
 
-            vm.logOut = function() {
+            vm.logOut = function () {
                 vm.auth.$signOut();
             }
 
@@ -583,7 +660,7 @@
             };
 
 
-            vm.projFilter = function(todo) {
+            vm.projFilter = function (todo) {
                 return todo.project == vm.params.projId ? true : false;
             };
 
@@ -615,13 +692,15 @@
 
 
 
-        .controller('LeftCtrl', function ($route, $mdSidenav, $mdDialog, $firebaseArray, $firebaseObject, Auth) {
+        .controller('LeftCtrl', function ($route, $routeParams, $mdSidenav, $mdDialog, $firebaseArray, $firebaseObject, Auth) {
 
             var vm = this;
 
             vm.auth = Auth;
             vm.user = vm.auth.$getAuth();
             vm.user_id = vm.user.uid;
+
+            vm.params = $routeParams;
 
             var ref = firebase.database().ref('/projects').orderByChild('user_id').equalTo(vm.user_id);
             vm.projects = $firebaseArray(ref);
@@ -662,7 +741,13 @@
                     });
 
 
-            }
+            };
+
+
+            vm.projectFilter = function (project) {
+                var folder = vm.params.folderId;
+                return project.folder == folder ? true : false;
+            };
 
         })
 
