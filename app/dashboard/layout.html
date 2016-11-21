@@ -2,69 +2,77 @@
 
     <div data-ng-include="'app/dashboard/topnav.html'"></div>
 
-    <div ng-controller="DashCtrl as dash">
+    <div ng-controller="DashCtrl as dash" layout="column">
 
-        <section layout="row" layout-padding layout-align="start space-around">
+        <section layout="row" layout-padding>
 
-            <span flex="5"></span>
+            <div layout="column" flex="15" class="menu-columns" layout-fill>
 
-            <div layout="row" flex="5">
-                <md-button class="md-fab md-primary md-mini" ng-click="dash.showInput = !dash.showInput">
-                    <md-icon md-font-set="material-icons"> add </md-icon>
-                </md-button>
-            </div>
+                <div class="folder-list" layout-fill>
 
-            <div flex="auto" layout="column">
+                    <p>Folders</p>
+                    <md-divider></md-divider>
 
-                <h3>Folders</h3>
+                    <md-content flex="auto">
 
-                <md-list>
+                        <md-list>
 
-                    <md-list-item class="md-whiteframe-1dp" ng-repeat="folder in dash.folders" ng-click="dash.showProjects(folder.$id)" ng-class="{active: folder.$id === dash.folder}">
-                        <h2 class="folder-title">{{folder.title}}</h2>
-                        <md-icon class="md-secondary folder-icon material-icons"> chevron_right </md-icon>
-                    </md-list-item>
+                            <md-list-item ng-repeat="folder in dash.folders" ng-click="dash.showProjects(folder.$id)" ng-class="{active: folder.$id === dash.folder}">
+                                <p class="folder-title">{{folder.title}}</p>
+                            </md-list-item>
 
-                </md-list>
+                        </md-list>
 
-                <div ng-show="dash.showInput" flex="100">
-                    <form name="newFolder" ng-submit="dash.createFolder()">
+                        <div ng-show="dash.showInput">
+                            <form name="newFolder" ng-submit="dash.createFolder()">
 
-                        <div>
-                            <md-input-container class="md-block">
-                                <label>Title</label>
-                                <input ng-model="dash.title" autofocus>
-                            </md-input-container>
+                                <div>
+                                    <md-input-container class="md-block">
+                                        <label>Title</label>
+                                        <input ng-model="dash.title" autofocus>
+                                    </md-input-container>
 
-                            <md-button class="md-raised md-primary" type="submit">New Folder</md-button>
+                                    <md-button class="md-raised md-primary" type="submit">New Folder</md-button>
+                                </div>
+                            </form>
                         </div>
-                    </form>
+
+                    </md-content>
+
+                    <md-divider></md-divider>
+
+                    <md-button class="md-primary" ng-click="dash.showInput = !dash.showInput">
+                        New Folder
+                    </md-button>
+
                 </div>
 
             </div>
 
-            <div flex="5" layout="row" ng-show="dash.showProjectInputButton">
-                
-            </div>
+            <div layout="column" flex="15" class="menu-columns" layout-align="space-between">
 
-            <div flex="40" ng-show="dash.projectView" class="fade">
+                <div layout-fill>
 
-                <h3>Projects</h3>
+                    <p>Projects</p>
+                    <md-divider></md-divider>
 
-                <md-button class="md-fab md-primary md-mini" ng-click="dash.showProjectInput = !dash.showProjectInput">
-                    <md-icon md-font-set="material-icons"> add </md-icon>
-                </md-button>
+                    <md-content flex="auto" ng-show="dash.projectView">
 
-                <div flex layout="column" layout-padding layout-align="space-around">
+                        <md-list>
 
-                    <md-list flex>
+                            <md-list-item ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id)" ng-class="{active: project.$id === dash.project}">
+                                <p class="folder-title">{{project.title}}</p>
+                            </md-list-item>
 
-                        <md-list-item class="md-whiteframe-1dp" ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.loadProject(project.$id)">
-                            <h2 class="folder-title">{{project.title}}</h2>
-                            <md-icon class="md-secondary folder-icon material-icons"> chevron_right </md-icon>
-                        </md-list-item>
+                        </md-list>
 
-                    </md-list>
+                    </md-content>
+
+                    <md-divider></md-divider>
+
+                    <md-button class="md-primary" ng-click="dash.showProjectInput = !dash.showProjectInput">
+                        New Project
+                    </md-button>
 
                     <div flex ng-show="dash.showProjectInput">
                         <form name="newProject" ng-submit="dash.createProject()">
@@ -84,7 +92,56 @@
 
             </div>
 
-            <span flex="5"></span>
+            <div ng-show="dash.todoView" flex>
+
+                <div layout="column" ng-controller="ListCtrl as list" layout-align="center space-around" layout-padding flex="auto">
+
+                    <md-list focus-iter="[focus-here]">
+
+                        <md-list-item class="md-whiteframe-1dp fade todos" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
+                            <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
+                            <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
+                                focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
+
+                            <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
+                            <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
+                                <md-icon md-font-set="material-icons"> schedule </md-icon>{{todo.dueDate | date: 'EEEE, MMM dd, yyyy'}}</md-button>
+
+                            <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
+                                <md-fab-trigger>
+                                    <md-button aria-label="menu" class="md-fab md-warn md-mini">
+                                        <md-icon md-font-family="material-icons"> menu </md-icon>
+                                    </md-button>
+                                </md-fab-trigger>
+
+                                <md-fab-actions>
+                                    <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.deleteTodo(todo, $event)">
+                                        <md-icon md-font-family="material-icons"> delete </md-icon>
+                                    </md-button>
+                                    <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
+                                        <md-icon md-font-family="material-icons"> hourglass_empty </md-icon>
+                                    </md-button>
+                                    <md-button class="md-fab md-raised md-mini" ng-click="todo.showDatePicker = !todo.showDatePicker">
+                                        <md-icon md-font-family="material-icons"> schedule </md-icon>
+                                    </md-button>
+                                </md-fab-actions>
+                            </md-fab-speed-dial>
+
+                        </md-list-item>
+
+                    </md-list>
+
+                    <div flex>
+
+                        <md-button class="md-primary md-raised" ng-click="list.addTodo()">
+                            New Task
+                        </md-button>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </section>
 

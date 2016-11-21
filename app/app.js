@@ -45,7 +45,7 @@
                     }
                 })
 
-                .when('/dashboard', {
+                .when('/app', {
                     templateUrl: 'app/dashboard/layout.html',
                     resolve: {
                         'currentAuth': ['Auth', '$location', function (Auth, $location) {
@@ -54,16 +54,7 @@
                     }
                 })
 
-                .when('/folder/:folderId/project/:projId', {
-                    templateUrl: 'app/projects/layout.html',
-                    resolve: {
-                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
-                            return Auth.$requireSignIn();
-                        }]
-                    }
-                })
-
-                .otherwise({ redirectTo: '/' });
+                .otherwise({ redirectTo: '/app' });
 
 
         }])
@@ -88,11 +79,11 @@
 
 
 
-        .factory('todos', ['$firebaseArray', '$routeParams', function ($firebaseArray, $routeParams) {
+        .factory('todos', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
 
-            var projTitle = $routeParams.projId;
-            var ref = firebase.database().ref().child('todos'); //.orderByChild('project').equalTo(projTitle);
+            var auth = Auth.$getAuth();
 
+            var ref = firebase.database().ref('/todos').orderByChild('user_id').equalTo(auth.uid);
             return $firebaseArray(ref);
         }])
 
@@ -123,6 +114,24 @@
             };
 
             return activeFolder;
+        })
+
+
+        .factory('activeProject', function () {
+
+            var activeProject = {};
+
+            activeProject.id = null;
+
+            activeProject.setActive = function (project) {
+                activeProject.id = project;
+            };
+
+            activeProject.getActive = function () {
+                return activeProject.id;
+            };
+
+            return activeProject;
         })
 
 
@@ -409,14 +418,16 @@
 
         // Dashboard
 
-        .controller('DashCtrl', function ($location, $timeout, $firebaseArray, activeFolder, folders, projects) {
+        .controller('DashCtrl', function ($location, $timeout, $firebaseArray, activeFolder, activeProject, folders, projects) {
 
             var vm = this;
 
             vm.activeFolder = activeFolder;
             vm.folders = folders;
+            vm.activeProject = activeProject;
             vm.projects = projects;
             vm.folder;
+            vm.project;
 
             var ref = firebase.database().ref()
 
@@ -429,7 +440,7 @@
             vm.projTitle = '';
 
             vm.projectView = false;
-            vm.selectedIndex = null;
+            vm.todoView = false;
 
 
             vm.createFolder = function () {
@@ -490,38 +501,63 @@
                 }
                 else if (vm.projectView && active == folder) {
                     vm.projectView = false;
+                    vm.todoView = false;
                     vm.showProjectInputButton = false;
                     activeFolder.setActive(null);
+                    activeProject.setActive(null);
                     vm.folder = null;
+                    vm.project = null;
                 }
                 else if (vm.projectView && active != folder) {
                     $timeout(function () {
                         vm.projectView = true;
+                        vm.todoView = false;
                         vm.showProjectInputButton = true;
                         activeFolder.setActive(folder);
+                        activeProject.setActive(null);
                         vm.folder = folder;
+                        vm.project = null;
                     });
                 }
             };
 
 
-            
-            vm.loadProject = function(project) {
+
+            vm.showTodos = function(project) {
+                var active = activeProject.getActive();
+                if (!vm.todoView && active == null) {
+                    activeProject.setActive(project);
+                    vm.project = project;
+                    vm.todoView = true;
+                }
+                else if (vm.todoView && active == project) {
+                    vm.todoView = false;
+                    activeProject.setActive(null);
+                    vm.project = null;
+                }
+                else if (vm.todoView && active != project) {
+                    $timeout(function() {
+                        vm.todoView = true;
+                        vm.projectView = true;
+                        activeProject.setActive(project);
+                        vm.project = project;
+                    });
+                }
+            };
+
+
+
+            vm.loadProject = function (project) {
                 $location.path('/folder/' + vm.folder + '/project/' + project);
                 vm.folder = null;
                 activeFolder.setActive(null);
             };
 
 
+
             vm.projectFilter = function (project) {
                 var active = activeFolder.getActive();
                 return project.folder == active ? true : false;
-            };
-
-
-
-            vm.selectFolder = function (i) {
-                vm.selectedIndex = i;
             };
 
 
@@ -596,16 +632,15 @@
 
 
 
-        .controller('ListCtrl', function ($route, $routeParams, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth) {
+        .controller('ListCtrl', function ($route, activeProject, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos) {
 
             var vm = this;
 
-            vm.params = $routeParams;
             vm.auth = Auth;
             vm.user = vm.auth.$getAuth();
+            vm.activeProject = activeProject.getActive();
 
-            var ref = firebase.database().ref('/todos').orderByChild('user_id').equalTo(vm.user.uid);
-
+            var ref = firebase.database().ref('/todos');
 
             vm.todos = $firebaseArray(ref);
 
@@ -618,7 +653,7 @@
             vm.addTodo = function () {
                 var todoData = {
                     title: vm.title,
-                    project: vm.params.projId,
+                    project: activeProject.getActive(),
                     complete: false,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
                     isOpen: false,
@@ -661,7 +696,7 @@
 
 
             vm.projFilter = function (todo) {
-                return todo.project == vm.params.projId ? true : false;
+                return todo.project == activeProject.getActive() ? true : false;
             };
 
 

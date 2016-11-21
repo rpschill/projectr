@@ -1,0 +1,46 @@
+<section layout="column" ng-controller="ListCtrl as list" layout-align="center space-around" layout-margin>
+
+    <md-list focus-iter="[focus-here]">
+
+        <md-list-item class="md-whiteframe-1dp fade todos" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
+            <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
+            <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
+                focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
+
+            <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
+            <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
+                <md-icon md-font-set="material-icons"> schedule </md-icon>{{todo.dueDate | date: 'EEEE, MMM dd, yyyy'}}</md-button>
+
+            <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
+                <md-fab-trigger>
+                    <md-button aria-label="menu" class="md-fab md-warn md-mini">
+                        <md-icon md-font-family="material-icons"> menu </md-icon>
+                    </md-button>
+                </md-fab-trigger>
+
+                <md-fab-actions>
+                    <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.deleteTodo(todo, $event)">
+                        <md-icon md-font-family="material-icons"> delete </md-icon>
+                    </md-button>
+                    <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
+                        <md-icon md-font-family="material-icons"> hourglass_empty </md-icon>
+                    </md-button>
+                    <md-button class="md-fab md-raised md-mini" ng-click="todo.showDatePicker = !todo.showDatePicker">
+                        <md-icon md-font-family="material-icons"> schedule </md-icon>
+                    </md-button>
+                </md-fab-actions>
+            </md-fab-speed-dial>
+
+        </md-list-item>
+
+    </md-list>
+
+    <div flex>
+
+        <md-button class="md-primary md-fab" ng-click="list.addTodo()">
+            <md-icon md-font-set="material-icons"> add </md-icon>
+        </md-button>
+
+    </div>
+
+</section>

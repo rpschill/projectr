@@ -12,6 +12,10 @@ body {
     padding: 10;
 }
 
+p.folder-title {
+    font-size: 14px;
+}
+
 h2.proj-title {
     text-align: center;
     font-size: 28px;
