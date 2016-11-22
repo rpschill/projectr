@@ -1,7 +1,11 @@
 <md-toolbar class="md-hue-2" ng-controller="TopCtrl as top">
     <div class="md-toolbar-tools">
         <span flex>
-            <a class="md-display-1" href="/dashboard">projectr</a>
+            <a class="md-display-1" href="/">projectr</a>
+        </span>
+
+        <span flex>
+            <h3>{{top.projTitle}}</h3>
         </span>
         
         <md-button ng-click="top.logOut()"><md-icon md-font-set="material-icons" id="account_circle"> account_circle </md-icon></md-button>

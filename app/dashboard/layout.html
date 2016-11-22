@@ -6,7 +6,7 @@
 
         <section layout="row" layout-padding>
 
-            <div layout="column" flex="15" class="menu-columns" layout-fill>
+            <div layout="column" flex="20" class="menu-columns" layout-fill>
 
                 <div class="folder-list" layout-fill>
 
@@ -17,8 +17,21 @@
 
                         <md-list>
 
-                            <md-list-item ng-repeat="folder in dash.folders" ng-click="dash.showProjects(folder.$id)" ng-class="{active: folder.$id === dash.folder}">
-                                <p class="folder-title">{{folder.title}}</p>
+                            <md-list-item ng-repeat="folder in dash.folders" ng-class="{active: folder.$id === dash.folder}">
+
+                                <md-menu md-offset="200 0">
+                                    <p ng-click="dash.folderMenu($mdOpenMenu, $event, folder.$id)" class="folder-title">{{folder.title}}</p>
+                                    <md-menu-content width="4">
+                                        <md-menu-item ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id)">
+                                            <span>{{project.title}}</span>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button class="md-primary" ng-click="dash.addProject($event, folder.$id)">
+                                                New Project
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
                             </md-list-item>
 
                         </md-list>
@@ -49,7 +62,7 @@
 
             </div>
 
-            <div layout="column" flex="15" class="menu-columns" layout-align="space-between">
+            <!--<div layout="column" flex="15" class="menu-columns" layout-align="space-between">
 
                 <div layout-fill>
 
@@ -90,15 +103,18 @@
 
                 </div>
 
-            </div>
+            </div>-->
 
-            <div ng-show="dash.todoView" flex>
+            <div ng-show="dash.todoView" flex class="md-whiteframe-2dp">
 
-                <div layout="column" ng-controller="ListCtrl as list" layout-align="center space-around" layout-padding flex="auto">
+                <h3>Project Title</h3>
+                <md-divider></md-divider>
+
+                <div layout="column" ng-controller="ListCtrl as list" layout-align="center space-between" layout-padding flex="auto" ng-cloak>
 
                     <md-list focus-iter="[focus-here]">
 
-                        <md-list-item class="md-whiteframe-1dp fade todos" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
+                        <md-list-item class="todos" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
                             <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
                             <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
                                 focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
@@ -126,6 +142,8 @@
                                     </md-button>
                                 </md-fab-actions>
                             </md-fab-speed-dial>
+
+                            <md-divider ng-if="!$last"></md-divider>
 
                         </md-list-item>
 
