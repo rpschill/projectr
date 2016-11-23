@@ -2,59 +2,61 @@
 
     <div data-ng-include="'app/dashboard/topnav.html'"></div>
 
-    <div ng-controller="DashCtrl as dash" layout="column">
+    <div ng-controller="DashCtrl as dash" layout="column" class="app-view">
 
-        <section layout="row" layout-padding>
+        <section layout="row" layout-padding layout-align="stretch">
 
-            <div layout="column" flex="20" class="menu-columns" layout-fill>
+            <div layout="column" flex-gt-xs="25" flex-gt-sm="25" flex-gt-md="20" flex-gt-lg="15" flex-gt-xl="10" class="menu-columns"
+                layout-fill>
 
-                <div class="folder-list" layout-fill>
+                <div class="folder-header" layout="row" layout-align="space-between center">
 
-                    <p>Folders</p>
+                    <div flex>
+                        <md-icon md-font-set="material-icons" style="font-size: 18px;"> folder </md-icon>
+                        Folders
+                    </div>
+
+                    <div class="folder-settings">
+                        <md-button class="md-icon-button" ng-click="dash.showDelete = !dash.showDelete">
+                            <md-icon md-font-set="material-icons"> settings </md-icon>
+                        </md-button>
+                    </div>
+
+                </div>
+
+                <div class="folder-list" layout="column">
                     <md-divider></md-divider>
 
                     <md-content flex="auto">
 
                         <md-list>
 
-                            <md-list-item ng-repeat="folder in dash.folders" ng-class="{active: folder.$id === dash.folder}">
+                            <md-list-item class="folder-list-item" ng-repeat="folder in dash.folders" ng-class="{active: folder.$id === dash.folder}">
 
                                 <md-menu md-offset="200 0">
                                     <p ng-click="dash.folderMenu($mdOpenMenu, $event, folder.$id)" class="folder-title">{{folder.title}}</p>
                                     <md-menu-content width="4">
-                                        <md-menu-item ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id)">
+                                        <md-menu-item class="menu-project-title" ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id, project.title)">
                                             <span>{{project.title}}</span>
                                         </md-menu-item>
-                                        <md-menu-item>
-                                            <md-button class="md-primary" ng-click="dash.addProject($event, folder.$id)">
+                                        <md-divider></md-divider>
+                                        <md-menu-item class="menu-project-title" ng-click="dash.addProject($event, folder.$id)">
+                                            <span class="menu-button">
                                                 New Project
-                                            </md-button>
+                                            </span>
                                         </md-menu-item>
                                     </md-menu-content>
                                 </md-menu>
+                                <md-icon md-font-set="material-icons" ng-show="dash.showDelete" class="md-secondary md-primary" ng-click="dash.deleteProject(project)"> delete </md-icon>
                             </md-list-item>
 
                         </md-list>
-
-                        <div ng-show="dash.showInput">
-                            <form name="newFolder" ng-submit="dash.createFolder()">
-
-                                <div>
-                                    <md-input-container class="md-block">
-                                        <label>Title</label>
-                                        <input ng-model="dash.title" autofocus>
-                                    </md-input-container>
-
-                                    <md-button class="md-raised md-primary" type="submit">New Folder</md-button>
-                                </div>
-                            </form>
-                        </div>
 
                     </md-content>
 
                     <md-divider></md-divider>
 
-                    <md-button class="md-primary" ng-click="dash.showInput = !dash.showInput">
+                    <md-button class="md-primary" ng-click="dash.addFolder($event)">
                         New Folder
                     </md-button>
 
@@ -105,16 +107,18 @@
 
             </div>-->
 
-            <div ng-show="dash.todoView" flex class="md-whiteframe-2dp">
+            <div ng-show="dash.todoView" flex class="md-whiteframe-4dp" layout-fill>
 
-                <h3>Project Title</h3>
-                <md-divider></md-divider>
+                <md-toolbar md-scroll-shrink>
+                    <div class="md-toolbar-tools">{{dash.projTitle}}</div>
+                </md-toolbar>
 
-                <div layout="column" ng-controller="ListCtrl as list" layout-align="center space-between" layout-padding flex="auto" ng-cloak>
+                <div layout="column" ng-controller="ListCtrl as list" layout-align="center space-between stretch" layout-padding flex="auto"
+                    ng-cloak>
 
                     <md-list focus-iter="[focus-here]">
 
-                        <md-list-item class="todos" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
+                        <md-list-item class="todos fade" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
                             <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
                             <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
                                 focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
@@ -126,7 +130,7 @@
                             <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
                                 <md-fab-trigger>
                                     <md-button aria-label="menu" class="md-fab md-warn md-mini">
-                                        <md-icon md-font-family="material-icons"> menu </md-icon>
+                                        <md-icon md-font-family="material-icons"> settings </md-icon>
                                     </md-button>
                                 </md-fab-trigger>
 

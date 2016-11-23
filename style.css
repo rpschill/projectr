@@ -28,9 +28,32 @@ h2.proj-title {
     font-weight: 700;
 }
 
+.folder-list-item:hover,
+.menu-project-title:hover {
+    background-color: rgba(158,158,158,0.2);
+}
+
+.menu-button {
+    color: rgb(255,87,34);
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.menu-columns {
+    border-right: solid 1px rgba(158,158,158,0.2);
+}
+
+.folder-settings {
+    border-left: solid 1px rgba(158,158,158,0.2);
+}
+
 md-list-item.todos {
     font-size: 16px;
     font-weight: 400;
+}
+
+md-menu p:focus {
+    outline: none;
 }
 
 .active {
