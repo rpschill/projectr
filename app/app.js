@@ -621,18 +621,18 @@
             };
 
 
-            vm.deleteProject = function (project, ev) {
+            vm.deleteFolder = function (folder, ev) {
                 var confirm = $mdDialog.confirm()
-                    .title('Would you like to delete this project?')
-                    .textContent('This will delete the project forever.')
+                    .title('Would you like to delete this folder?')
+                    .textContent('This will delete the folder forever.')
                     .targetEvent(ev)
                     .ok('Delete forever')
                     .cancel("No! Don't do it!");
 
                 $mdDialog.show(confirm).then(function () {
-                    vm.todos.$remove(project);
+                    vm.folders.$remove(folder);
                 }, function () {
-                    console.log('This project was not deleted');
+                    console.log('This folder was not deleted');
                 });
             };
 
@@ -724,6 +724,9 @@
 
             vm.title = '';
 
+            vm.showCompleted = false;
+            vm.completeText = 'Show';
+
             vm.toggleRight = function () {
                 $mdSidenav('right').toggle();
             };
@@ -776,6 +779,25 @@
             vm.projFilter = function (todo) {
                 return todo.project == activeProject.id ? true : false;
             };
+
+            vm.completedFilter = function(todo) {
+                if (!vm.showCompleted) {
+                    return todo.complete === false;
+                }
+                else {
+                    return todo;
+                }
+            }
+
+            vm.toggleCompleted = function() {
+                vm.showCompleted = !vm.showCompleted;
+                if (vm.showCompleted) {
+                    vm.completeText = 'Hide';
+                }
+                else {
+                    vm.completeText = 'Show';
+                }
+            }
 
 
             vm.newDate = new Date();

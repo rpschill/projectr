@@ -47,7 +47,8 @@
                                         </md-menu-item>
                                     </md-menu-content>
                                 </md-menu>
-                                <md-icon md-font-set="material-icons" ng-show="dash.showDelete" class="md-secondary md-primary" ng-click="dash.deleteProject(project)"> delete </md-icon>
+                                <md-icon md-font-set="material-icons" ng-show="dash.showDelete" class="md-secondary md-primary" ng-click="dash.deleteFolder(folder, $event)">
+                                    delete </md-icon>
                             </md-list-item>
 
                         </md-list>
@@ -118,7 +119,7 @@
 
                     <md-list focus-iter="[focus-here]">
 
-                        <md-list-item class="todos fade" ng-repeat="todo in list.todos | filter : list.projFilter | filter : {complete : false}">
+                        <md-list-item class="todos fade" ng-repeat="todo in list.todos | filter : list.projFilter | filter : list.completedFilter">
                             <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
                             <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
                                 focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
@@ -153,13 +154,16 @@
 
                     </md-list>
 
-                    <div flex>
-
-                        <md-button class="md-primary md-raised" ng-click="list.addTodo()">
-                            New Task
-                        </md-button>
-
-                    </div>
+                    <md-toolbar class="footer">
+                        <div class="md-toolbar-tools">
+                            <md-button class="md-primary md-raised" ng-click="list.addTodo()">
+                                New Task
+                            </md-button>
+                            <md-button class="md-raised" ng-click="list.toggleCompleted()">
+                                {{ list.completeText }} Completed
+                            </md-button>
+                        </div>
+                    </md-toolbar>
 
                 </div>
 
@@ -168,5 +172,7 @@
         </section>
 
     </div>
+
+    <div data-ng-include="'app/dashboard/rightnav.html'" flex></div>
 
 </div>

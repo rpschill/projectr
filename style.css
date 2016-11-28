@@ -134,3 +134,7 @@ md-menu p:focus {
 .fade-view.ng-leave-active {
     opacity: 0;
 }
+
+md-toolbar.footer {
+    background-color: rgba(158,158,158,0.2);
+}
