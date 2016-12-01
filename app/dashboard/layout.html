@@ -27,9 +27,14 @@
                 <div class="folder-list" layout="column">
                     <md-divider></md-divider>
 
-                    <md-content flex="auto">
+                     <md-content flex="auto">
 
-                        <md-list>
+                        <div class="center" ng-hide="dash.folders.length >= 1">
+                            <h3>Let's get started!</h3>
+                            <p>Click below to create a new folder</p>
+                        </div>
+
+                        <md-list ng-show="dash.folders.length >= 1">
 
                             <md-list-item class="folder-list-item" ng-repeat="folder in dash.folders" ng-class="{active: folder.$id === dash.folder}">
 
@@ -111,7 +116,11 @@
             <div ng-show="dash.todoView" flex class="md-whiteframe-4dp" layout-fill>
 
                 <md-toolbar md-scroll-shrink>
-                    <div class="md-toolbar-tools">{{dash.projTitle}}</div>
+                    <div class="md-toolbar-tools">
+                        <span>{{dash.projTitle}}</span>
+                        <span flex></span>
+                        
+                    </div>
                 </md-toolbar>
 
                 <div layout="column" ng-controller="ListCtrl as list" layout-align="center space-between stretch" layout-padding flex="auto"
