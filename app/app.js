@@ -70,7 +70,9 @@
 
         .factory('projects', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
 
-            var ref = firebase.database().ref('/projects');
+            var auth = Auth.$getAuth();
+            var uid = auth.uid;
+            var ref = firebase.database().ref('/projects').orderByChild('user_id').equalTo(uid);
 
 
             return $firebaseArray(ref);
@@ -281,6 +283,8 @@
             vm.password = '';
             vm.uid = null;
 
+            vm.toggleSignIn = false;
+
             vm.toggleRight = function () {
                 $mdSidenav('home-right').toggle();
             };
@@ -337,6 +341,16 @@
 
                         $location.path('/app');
                     });
+            };
+
+
+            vm.signIn = function() {
+                vm.auth.$signInWithEmailAndPassword(vm.email, vm.password)
+                .then(function(firebaseUser) {
+                    $location.path('/app');
+                }).catch(function(error) {
+                    console.error('Authentication failed: ', error);
+                });
             };
 
 
@@ -420,7 +434,7 @@
 
         // Dashboard
 
-        .controller('DashCtrl', function ($scope, $mdDialog, $location, $timeout, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth) {
+        .controller('DashCtrl', function ($scope, $mdDialog, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth) {
 
             var vm = this;
 
@@ -441,6 +455,8 @@
             vm.projTitle = vm.activeProject.title;
             vm.projId = vm.activeProject.id;
             vm.projObj = null;
+
+            vm.newProj = '';
 
             $scope.$watch(
                 function () {
@@ -527,9 +543,9 @@
             vm.createProject = function (folder) {
                 var folder = folder;
                 var projectData = {
-                    title: vm.projTitle,
+                    title: vm.newProj,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
-                    folder: folder,
+                    folder: vm.folder,
                     user_id: vm.user_id
                 };
 
@@ -541,6 +557,7 @@
                 updates['/folders/' + folder + '/projects/' + vm.projectKey] = true;
 
                 firebase.database().ref().update(updates);
+                vm.newProj = '';
 
             };
 
@@ -580,6 +597,12 @@
             vm.showProjects = function (folder) {
                 var folder = folder;
                 activeFolder.setActive(folder);
+            };
+
+
+            vm.loadProjects = function(folder) {
+                vm.folder = folder;
+                vm.projectView = true;
             };
 
 

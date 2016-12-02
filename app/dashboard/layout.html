@@ -1,13 +1,25 @@
-<div layout="column" ng-controller="AppCtrl as appCtrl">
+<div layout="row" layout-align="start stretch" layout-fill>
 
-    <div data-ng-include="'app/dashboard/topnav.html'"></div>
+    <div style="min-width: 92px;" flex="5" layout-fill>
 
-    <div ng-controller="DashCtrl as dash" layout="column" class="app-view">
+        <md-toolbar class="md-hue-2" ng-controller="TopCtrl as top" layout-fill layout="column" layout-align="space-between center">
+            <div flex class="center">
+                <md-icon class="center" md-font-set="material-icons" style="margin-top: 15px;"> local_movies </md-icon>
+                <span class="center" flex>projectr</span>
+            </div>
+            <span flex="85"></span>
+            <div flex class="center">
+                <md-button class="md-fab md-primary md-icon-button" flex ng-click="top.logOut()"><md-icon md-font-set="material-icons"> account_circle </md-icon></md-button>
+            </div>
+        </md-toolbar>
 
-        <section layout="row" layout-padding layout-align="stretch">
+    </div>
 
-            <div layout="column" flex-gt-xs="25" flex-gt-sm="25" flex-gt-md="20" flex-gt-lg="15" flex-gt-xl="10" class="menu-columns"
-                layout-fill>
+    <div ng-controller="DashCtrl as dash" class="app-view" layout-padding flex layout="row">
+
+        <section class="menus" layout="row" layout-padding layout-align="start stretch" layout-fill flex="30">
+
+            <div layout="column" flex="50" class="menu-columns" layout-fill>
 
                 <div class="folder-header" layout="row" layout-align="space-between center">
 
@@ -27,7 +39,7 @@
                 <div class="folder-list" layout="column">
                     <md-divider></md-divider>
 
-                     <md-content flex="auto">
+                    <md-content flex="auto">
 
                         <div class="center" ng-hide="dash.folders.length >= 1">
                             <h3>Let's get started!</h3>
@@ -36,22 +48,26 @@
 
                         <md-list ng-show="dash.folders.length >= 1">
 
-                            <md-list-item class="folder-list-item" ng-repeat="folder in dash.folders" ng-class="{active: folder.$id === dash.folder}">
+                            <md-list-item class="folder-list-item" ng-click="dash.loadProjects(folder.$id)" ng-repeat="folder in dash.folders" ng-class="{active: folder.$id === dash.folder}">
 
-                                <md-menu md-offset="200 0">
-                                    <p ng-click="dash.folderMenu($mdOpenMenu, $event, folder.$id)" class="folder-title">{{folder.title}}</p>
-                                    <md-menu-content width="4">
-                                        <md-menu-item class="menu-project-title" ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id, project.title)">
-                                            <span>{{project.title}}</span>
-                                        </md-menu-item>
-                                        <md-divider></md-divider>
-                                        <md-menu-item class="menu-project-title" ng-click="dash.addProject($event, folder.$id)">
-                                            <span class="menu-button">
-                                                New Project
-                                            </span>
-                                        </md-menu-item>
-                                    </md-menu-content>
-                                </md-menu>
+                                <!--<md-menu md-offset="200 0">
+                                        <p ng-click="dash.folderMenu($mdOpenMenu, $event, folder.$id)" class="folder-title">{{folder.title}}</p>
+                                        <md-menu-content width="4">
+                                            <md-menu-item class="menu-project-title" ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id, project.title)">
+                                                <span>{{project.title}}</span>
+                                            </md-menu-item>
+                                            <md-divider></md-divider>
+                                            <md-menu-item class="menu-project-title" ng-click="dash.addProject($event, folder.$id)">
+                                                <span class="menu-button">
+                                                    New Project
+                                                </span>
+                                            </md-menu-item>
+                                        </md-menu-content>
+                                    </md-menu>-->
+
+
+                                <p>{{ folder.title }}</p>
+
                                 <md-icon md-font-set="material-icons" ng-show="dash.showDelete" class="md-secondary md-primary" ng-click="dash.deleteFolder(folder, $event)">
                                     delete </md-icon>
                             </md-list-item>
@@ -70,18 +86,32 @@
 
             </div>
 
-            <!--<div layout="column" flex="15" class="menu-columns" layout-align="space-between">
+            <div layout="column" class="menu-columns" flex>
 
-                <div layout-fill>
+                <div class="folder-header" layout="row" layout-align="space-between center">
 
-                    <p>Projects</p>
-                    <md-divider></md-divider>
+                    <div flex>
+                        <md-icon md-font-set="material-icons" style="font-size: 18px;"> assignment </md-icon>
+                        Projects
+                    </div>
 
-                    <md-content flex="auto" ng-show="dash.projectView">
+                    <div class="folder-settings">
+                        <md-button class="md-icon-button" ng-click="dash.showDelete = !dash.showDelete">
+                            <md-icon md-font-set="material-icons"> settings </md-icon>
+                        </md-button>
+                    </div>
+
+                </div>
+
+                <md-divider></md-divider>
+
+                <div class="folder-list" layout="column" flex="auto" ng-show="dash.projectView">
+
+                    <md-content>
 
                         <md-list>
 
-                            <md-list-item ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id)" ng-class="{active: project.$id === dash.project}">
+                            <md-list-item ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id, project.title)" ng-class="{active: project.$id === dash.projId}">
                                 <p class="folder-title">{{project.title}}</p>
                             </md-list-item>
 
@@ -101,25 +131,29 @@
                             <div>
                                 <md-input-container class="md-block">
                                     <label>Title</label>
-                                    <input ng-model="dash.projTitle" autofocus>
+                                    <input ng-model="dash.newProj" autofocus>
                                 </md-input-container>
 
                                 <md-button class="md-raised md-primary" type="submit">New Project</md-button>
                             </div>
                         </form>
+
                     </div>
 
                 </div>
 
-            </div>-->
+            </div>
 
-            <div ng-show="dash.todoView" flex class="md-whiteframe-4dp" layout-fill>
+        </section>
+
+        <section flex>
+            <div ng-show="dash.todoView" flex class="md-whiteframe-4dp">
 
                 <md-toolbar md-scroll-shrink>
                     <div class="md-toolbar-tools">
                         <span>{{dash.projTitle}}</span>
                         <span flex></span>
-                        
+
                     </div>
                 </md-toolbar>
 
@@ -177,11 +211,8 @@
                 </div>
 
             </div>
-
         </section>
 
     </div>
-
-    <div data-ng-include="'app/dashboard/rightnav.html'" flex></div>
 
 </div>
