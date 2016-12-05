@@ -447,6 +447,7 @@
             vm.folder;
             vm.project;
             vm.showDelete = false;
+            vm.showProjDelete = false;
 
             var ref = firebase.database().ref();
 
@@ -486,7 +487,22 @@
                 vm.pId = vm.projObj.$id;
             };
 
-            
+
+            vm.folders.$loaded().then(function(list) {
+                angular.forEach(vm.folders, function(folder) {
+                    folder.
+                })
+            })
+
+            vm.folders.forEach(function (folder) {
+                var ref = firebase.database().ref('/folders/' + folder + '/projects/');
+                ref.once("value")
+                .then(function(snapshot) {
+                    folder.projectCount = snapshot.numChildren();
+                });
+            });
+
+
 
 
 
@@ -560,6 +576,10 @@
                 vm.newProj = '';
 
             };
+
+
+
+
 
 
 
@@ -680,6 +700,25 @@
                     console.log('This folder was not deleted');
                 });
             };
+
+
+            vm.deleteProject = function(project, ev) {
+                var confirm = $mdDialog.confirm()
+                .title('Would you like to delete this project?')
+                .textContent('This will delete the project forever.')
+                .targetEvent(ev)
+                .ok('Delete forever')
+                .cancel("No! Leave my project alone!");
+
+                $mdDialog.show(confirm).then(function() {
+                    var updates = {};
+                    updates['/folders/' + vm.folder + '/projects/' + project.$id] = null;
+                    firebase.database().ref().update(updates);
+                    vm.projects.$remove(project);
+                }, function () {
+                    console.log('This project was not deleted');
+                });
+            }
 
         })
 

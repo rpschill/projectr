@@ -66,7 +66,7 @@
                                     </md-menu>-->
 
 
-                                <p>{{ folder.title }}</p>
+                                <p>{{ folder.title }} ({{ folder.projectCount }})</p>
 
                                 <md-icon md-font-set="material-icons" ng-show="dash.showDelete" class="md-secondary md-primary" ng-click="dash.deleteFolder(folder, $event)">
                                     delete </md-icon>
@@ -96,7 +96,7 @@
                     </div>
 
                     <div class="folder-settings">
-                        <md-button class="md-icon-button" ng-click="dash.showDelete = !dash.showDelete">
+                        <md-button class="md-icon-button" ng-click="dash.showProjDelete = !dash.showProjDelete">
                             <md-icon md-font-set="material-icons"> settings </md-icon>
                         </md-button>
                     </div>
@@ -113,6 +113,8 @@
 
                             <md-list-item ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id, project.title)" ng-class="{active: project.$id === dash.projId}">
                                 <p class="folder-title">{{project.title}}</p>
+                                <md-icon md-font-set="material-icons" ng-show="dash.showProjDelete" class="md-secondary md-primary" ng-click="dash.deleteProject(project, $event)">
+                                    delete </md-icon>
                             </md-list-item>
 
                         </md-list>
@@ -126,7 +128,7 @@
                     </md-button>
 
                     <div flex ng-show="dash.showProjectInput">
-                        <form name="newProject" ng-submit="dash.createProject()">
+                        <form name="newProject" ng-submit="dash.createProject(dash.folder)">
 
                             <div>
                                 <md-input-container class="md-block">
