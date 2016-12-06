@@ -344,13 +344,13 @@
             };
 
 
-            vm.signIn = function() {
+            vm.signIn = function () {
                 vm.auth.$signInWithEmailAndPassword(vm.email, vm.password)
-                .then(function(firebaseUser) {
-                    $location.path('/app');
-                }).catch(function(error) {
-                    console.error('Authentication failed: ', error);
-                });
+                    .then(function (firebaseUser) {
+                        $location.path('/app');
+                    }).catch(function (error) {
+                        console.error('Authentication failed: ', error);
+                    });
             };
 
 
@@ -488,23 +488,6 @@
             };
 
 
-            vm.folders.$loaded().then(function(list) {
-                angular.forEach(vm.folders, function(folder) {
-                    folder.
-                })
-            })
-
-            vm.folders.forEach(function (folder) {
-                var ref = firebase.database().ref('/folders/' + folder + '/projects/');
-                ref.once("value")
-                .then(function(snapshot) {
-                    folder.projectCount = snapshot.numChildren();
-                });
-            });
-
-
-
-
 
             vm.showInput = false;
             vm.showProj = false;
@@ -574,6 +557,7 @@
 
                 firebase.database().ref().update(updates);
                 vm.newProj = '';
+                
 
             };
 
@@ -620,7 +604,7 @@
             };
 
 
-            vm.loadProjects = function(folder) {
+            vm.loadProjects = function (folder) {
                 vm.folder = folder;
                 vm.projectView = true;
             };
@@ -702,15 +686,15 @@
             };
 
 
-            vm.deleteProject = function(project, ev) {
+            vm.deleteProject = function (project, ev) {
                 var confirm = $mdDialog.confirm()
-                .title('Would you like to delete this project?')
-                .textContent('This will delete the project forever.')
-                .targetEvent(ev)
-                .ok('Delete forever')
-                .cancel("No! Leave my project alone!");
+                    .title('Would you like to delete this project?')
+                    .textContent('This will delete the project forever.')
+                    .targetEvent(ev)
+                    .ok('Delete forever')
+                    .cancel("No! Leave my project alone!");
 
-                $mdDialog.show(confirm).then(function() {
+                $mdDialog.show(confirm).then(function () {
                     var updates = {};
                     updates['/folders/' + vm.folder + '/projects/' + project.$id] = null;
                     firebase.database().ref().update(updates);
