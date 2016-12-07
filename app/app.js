@@ -91,6 +91,16 @@
 
 
 
+        .factory('childTodos', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
+
+            var auth = Auth.$getAuth();
+
+            var ref = firebase.database().ref('/childTodos').orderByChild('user_id').equalTo(auth.uid);
+            return $firebaseArray(ref);
+        }])
+
+
+
         .factory('folders', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
 
             var auth = Auth.$getAuth();
@@ -107,13 +117,15 @@
             var activeFolder = {};
 
             activeFolder.id = null;
+            activeFolder.title = null;
 
-            activeFolder.setActive = function (folder) {
-                activeFolder.id = folder;
+            activeFolder.setActive = function (folderId, folderTitle) {
+                activeFolder.id = folderId;
+                activeFolder.title = folderTitle;
             };
 
             activeFolder.getActive = function () {
-                return activeFolder.id;
+                return activeFolder;
             };
 
             return activeFolder;
@@ -449,6 +461,9 @@
             vm.showDelete = false;
             vm.showProjDelete = false;
 
+            vm.folderId = vm.activeFolder.id;
+            vm.folderTitle = vm.activeFolder.title;
+
             var ref = firebase.database().ref();
 
             vm.activeProject = activeProject.getActive();
@@ -458,6 +473,7 @@
             vm.projObj = null;
 
             vm.newProj = '';
+            vm.proj = '';
 
             $scope.$watch(
                 function () {
@@ -487,6 +503,30 @@
                 vm.pId = vm.projObj.$id;
             };
 
+
+
+            $scope.$watch(
+                function() {
+                    return activeFolder.title;
+                },
+                function(newValue, oldValue) {
+                    if (newValue != oldValue) {
+                        vm.folderTitle = newValue;
+                    }
+                }
+            );
+
+
+            $scope.$watch(
+                function () {
+                    return activeFolder.id;
+                },
+                function(newValue, oldValue) {
+                    if (newValue != oldValue) {
+                        vm.folderId = newValue;
+                    }
+                }
+            );
 
 
             vm.showInput = false;
@@ -539,10 +579,9 @@
             };
 
 
-            vm.createProject = function (folder) {
-                var folder = folder;
+            vm.createProject = function () {
                 var projectData = {
-                    title: vm.newProj,
+                    title: vm.projTitle,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
                     folder: vm.folder,
                     user_id: vm.user_id
@@ -553,12 +592,25 @@
                 var updates = {};
 
                 updates['/projects/' + vm.projectKey] = projectData;
-                updates['/folders/' + folder + '/projects/' + vm.projectKey] = true;
+                updates['/folders/' + vm.folder + '/projects/' + vm.projectKey] = true;
 
                 firebase.database().ref().update(updates);
-                vm.newProj = '';
-                
+            };
 
+
+            vm.addProject = function (ev) {
+                var confirm = $mdDialog.prompt()
+                    .title('Create new project')
+                    .placeholder('Enter a title for your project')
+                    .ariaLabel('Project title')
+                    .targetEvent(ev)
+                    .ok('Create')
+                    .cancel('Cancel');
+
+                $mdDialog.show(confirm).then(function (result) {
+                    vm.projTitle = result;
+                    vm.createProject();
+                });
             };
 
 
@@ -604,8 +656,11 @@
             };
 
 
-            vm.loadProjects = function (folder) {
-                vm.folder = folder;
+            vm.loadProjects = function (folderId, folderTitle) {
+                vm.todoView = false;
+                vm.folder = folderId;
+                vm.folderTitle = folderTitle;
+                activeFolder.setActive(folderId, folderTitle);
                 vm.projectView = true;
             };
 
@@ -774,7 +829,7 @@
 
 
 
-        .controller('ListCtrl', function ($scope, activeProject, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos) {
+        .controller('ListCtrl', function ($scope, activeProject, activeFolder, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos, childTodos) {
 
             var vm = this;
 
@@ -783,9 +838,11 @@
 
             var ref = firebase.database().ref('/todos');
 
-            vm.todos = $firebaseArray(ref);
+            vm.todos = todos;
+            vm.childTodos = childTodos;
 
             vm.title = '';
+            vm.childTitle = '';
 
             vm.showCompleted = false;
             vm.completeText = 'Show';
@@ -850,7 +907,7 @@
                 else {
                     return todo;
                 }
-            }
+            };
 
             vm.toggleCompleted = function () {
                 vm.showCompleted = !vm.showCompleted;
@@ -860,7 +917,70 @@
                 else {
                     vm.completeText = 'Show';
                 }
-            }
+            };
+
+
+
+            vm.addChild = function (todo) {
+                var todoId = vm.todos.$keyAt(todo);
+                var createChild = function () {
+                    vm.childTodos.$add({
+                        title: vm.childTitle,
+                        createdDate: firebase.database.ServerValue.TIMESTAMP,
+                        parentId: todoId,
+                        completed: false,
+                        project: activeProject.getActive().id,
+                        showDatePicker: false,
+                        dueDate: ''
+                    });
+
+                    vm.childTitle = '';
+                };
+            };
+
+
+
+            vm.updateChild = function (child) {
+                vm.childTodos.$save(child);
+            };
+
+
+            vm.childFilter = function(child, todo) {
+                return child.parentId == todo ? true : false;
+            };
+
+
+            /*vm.addChild = function(todo) {
+                var todoId = vm.todos.$keyAt(todo);
+                console.log(todo);
+                console.log(todoId);
+                var childData = {
+                    title: vm.childTitle,
+                    project: activeProject.getActive().id,
+                    complete: false,
+                    createdDate: firebase.database.ServerValue.TIMESTAMP,
+                    dueDate: '',
+                    showDatePicker: false,
+                    user_id: vm.user.uid
+                };
+
+                var newKey = firebase.database().ref('/todos/' + todoId).child('children').push().key;
+                vm.childTitle = '';
+
+                var updates = {};
+
+                updates['/todos/' + todoId + '/children/' + newKey] = childData;
+
+                return firebase.database().ref().update(updates);
+            };
+
+
+            vm.updateChild = function(todo, child) {
+                vm.todos.$save(child).then(function(ref) {
+                    ref.key === child.$id;
+                });
+                
+            };*/
 
 
             vm.newDate = new Date();
