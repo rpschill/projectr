@@ -192,6 +192,21 @@
 
 
 
+        .directive('tabAction', function() {
+            return function(scope, element, attrs) {
+                element.bind('keydown keypress', function(event) {
+                    if (event.which === 9) {
+                        event.preventDefault();
+                        scope.$apply(function() {
+                            scope.$eval(attrs.tabAction);
+                        });
+                    }
+                });
+            };
+        })
+
+
+
         .directive('resetFocusOnNew', function ($timeout) {
             return function (scope, element, attrs, ctrl) {
                 if (scope.$last) {
@@ -258,6 +273,31 @@
                                     if (scope.todo.title === '') {
                                         scope.$apply(function () {
                                             scope.$eval(attrs.deleteTaskListener);
+                                        });
+
+                                        event.preventDefault();
+                                    }
+                                }
+                            });
+                        });
+                    });
+                }
+            };
+        })
+
+
+
+        .directive('deleteChildListener', function () {
+            return {
+                restrict: 'A',
+                link: function (scope, element, attrs) {
+                    element.focus(function () {
+                        attrs.$observe('ngModel', function (child) {
+                            element.bind('keydown keypress', function (event) {
+                                if (event.which === 8) {
+                                    if (scope.child.title === '') {
+                                        scope.$apply(function () {
+                                            scope.$eval(attrs.deleteChildListener);
                                         });
 
                                         event.preventDefault();
@@ -506,10 +546,10 @@
 
 
             $scope.$watch(
-                function() {
+                function () {
                     return activeFolder.title;
                 },
-                function(newValue, oldValue) {
+                function (newValue, oldValue) {
                     if (newValue != oldValue) {
                         vm.folderTitle = newValue;
                     }
@@ -521,7 +561,7 @@
                 function () {
                     return activeFolder.id;
                 },
-                function(newValue, oldValue) {
+                function (newValue, oldValue) {
                     if (newValue != oldValue) {
                         vm.folderId = newValue;
                     }
@@ -833,13 +873,12 @@
 
             var vm = this;
 
-            vm.auth = Auth;
-            vm.user = vm.auth.$getAuth();
-
-            var ref = firebase.database().ref('/todos');
+            vm.auth = Auth.$getAuth().uid;
+            vm.user = vm.auth.uid;
 
             vm.todos = todos;
             vm.childTodos = childTodos;
+            vm.todo;
 
             vm.title = '';
             vm.childTitle = '';
@@ -860,7 +899,7 @@
                     isOpen: false,
                     dueDate: '',
                     showDatePicker: false,
-                    user_id: vm.user.uid
+                    user_id: vm.auth
                 };
 
                 var newKey = firebase.database().ref('/todos').push().key;
@@ -909,6 +948,15 @@
                 }
             };
 
+            vm.childCompletedFilter = function(child) {
+                if (!vm.showCompleted) {
+                    return child.completed === false;
+                }
+                else {
+                    return child;
+                }
+            };
+
             vm.toggleCompleted = function () {
                 vm.showCompleted = !vm.showCompleted;
                 if (vm.showCompleted) {
@@ -922,31 +970,42 @@
 
 
             vm.addChild = function (todo) {
-                var todoId = vm.todos.$keyAt(todo);
-                var createChild = function () {
-                    vm.childTodos.$add({
-                        title: vm.childTitle,
-                        createdDate: firebase.database.ServerValue.TIMESTAMP,
-                        parentId: todoId,
-                        completed: false,
-                        project: activeProject.getActive().id,
-                        showDatePicker: false,
-                        dueDate: ''
-                    });
-
-                    vm.childTitle = '';
+                var todo = todo;
+                console.log(todo);
+                var childData = {
+                    title: vm.childTitle,
+                    createdDate: firebase.database.ServerValue.TIMESTAMP,
+                    parentId: todo,
+                    complete: false,
+                    project: activeProject.getActive().id,
+                    showDatePicker: false,
+                    dueDate: '',
+                    user_id: vm.auth
                 };
+
+                var updates = {};
+
+                var newKey = firebase.database().ref('/childTodos').push().key;
+                console.log(newKey);
+
+                updates['/childTodos/' + newKey] = childData;
+                vm.childTitle = '';
+
+                return firebase.database().ref().update(updates);
+
             };
 
 
 
             vm.updateChild = function (child) {
-                vm.childTodos.$save(child);
+                vm.childTodos.$save(child).then(function(ref) {
+                    ref.key === child.$id;
+                });
             };
 
 
-            vm.childFilter = function(child, todo) {
-                return child.parentId == todo ? true : false;
+            vm.removeChild = function(child) {
+                vm.childTodos.$remove(child);
             };
 
 
@@ -991,6 +1050,16 @@
                 todo.showDatePicker = false;
                 vm.todos.$save(todo).then(function (ref) {
                     ref.key === todo.$id;
+                });
+                vm.newDate = new Date();
+            };
+
+
+            vm.setChildDueDate = function(child) {
+                child.dueDate = vm.newDate.getTime();
+                child.showDatePicker = false;
+                vm.childTodos.$save(child).then(function(ref) {
+                    ref.key === child.$id;
                 });
                 vm.newDate = new Date();
             };

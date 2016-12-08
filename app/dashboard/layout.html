@@ -154,7 +154,7 @@
                         <md-list-item class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter">
                             <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
                             <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
-                                focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new></p>
+                                focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new tab-action="list.addChild(todo.$id)"></p>
 
                             <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
                             <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
@@ -163,7 +163,7 @@
                             <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
                                 <md-fab-trigger>
                                     <md-button aria-label="menu" class="md-fab md-warn md-mini">
-                                        <md-icon md-font-family="material-icons"> settings </md-icon>
+                                        <md-icon md-font-family="material-icons"> more_horiz </md-icon>
                                     </md-button>
                                 </md-fab-trigger>
 
@@ -177,18 +177,46 @@
                                     <md-button class="md-fab md-raised md-mini" ng-click="todo.showDatePicker = !todo.showDatePicker">
                                         <md-icon md-font-family="material-icons"> schedule </md-icon>
                                     </md-button>
+                                    <md-button class="md-fab md-raised md-mini" ng-click="list.addChild(todo.$id)">
+                                        <md-icon md-font-family="material-icons"> subdirectory_arrow_right </md-icon>
+                                    </md-button>
+                                </md-fab-actions>
+                            </md-fab-speed-dial>
+
+
+                        </md-list-item>
+
+                        <md-list-item class="todos child-todos fade" ng-repeat-end ng-repeat="child in list.childTodos | filter : list.completedFilter" ng-if="child.parentId === todo.$id" style="margin-left: 50px;">
+
+                            <md-checkbox class="strikethrough" ng-model="child.complete" ng-change="list.updateChild(child)" ng-repeat="v in [0]"></md-checkbox>
+                            <p class="todo-list-item strikethis" ng-model="child.title" contenteditable focus-here on-enter="list.addChild(todo.$id)" ng-change="list.updateChild(child)" delete-child-listener="list.removeChild(child)"></p>
+
+                            <md-datepicker ng-model="list.newDate" value="child.dueDate" md-open-on-focus ng-show="child.showDatePicker" ng-change="list.setChildDueDate(child)"></md-datepicker>
+                            <md-button class="md-secondary md-warn" ng-show="child.dueDate != '' && !child.showDatePicker" ng-click="child.showDatePicker = !child.showDatePicker">
+                                <md-icon md-font-set="material-icons"> schedule </md-icon>{{child.dueDate | date: 'EEEE, MMM dd, yyyy'}}</md-button>
+
+                            <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
+                                <md-fab-trigger>
+                                    <md-button aria-label="menu" class="md-fab md-warn md-mini">
+                                        <md-icon md-font-family="material-icons"> more_horiz </md-icon>
+                                    </md-button>
+                                </md-fab-trigger>
+
+                                <md-fab-actions>
+                                    <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.removeChild(child)">
+                                        <md-icon md-font-family="material-icons"> delete </md-icon>
+                                    </md-button>
+                                    <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
+                                        <md-icon md-font-family="material-icons"> hourglass_empty </md-icon>
+                                    </md-button>
+                                    <md-button class="md-fab md-raised md-mini" ng-click="child.showDatePicker = !child.showDatePicker">
+                                        <md-icon md-font-family="material-icons"> schedule </md-icon>
+                                    </md-button>
                                 </md-fab-actions>
                             </md-fab-speed-dial>
 
                             <md-divider ng-if="!$last"></md-divider>
 
-                        </md-list-item>
-
-                        <md-list-item class="todos fade" ng-repeat-end ng-repeat="child in list.childTodos" style="margin-left: 50px;">
-                            <md-checkbox ng-repeat="v in [0]"></md-checkbox>
-                            <p class="todo-list-item strikethis" ng-model="child.title" contenteditable focus-here on-enter="list.addChild(todo)" on-change="list.updateChild(child)"></p>
-
-                            <md-divider></md-divider>
                         </md-list-item>
 
                     </md-list>
