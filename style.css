@@ -14,12 +14,6 @@ ng-view {
     text-align: center;
 }
 
-#account_circle {
-    font-size: 48px;
-    height: 48px;
-    padding: 10;
-}
-
 p.folder-title {
     font-size: 14px;
 }
@@ -146,4 +140,21 @@ md-list-item p:focus {
 
 md-toolbar.footer {
     background-color: rgba(158,158,158,0.2);
+}
+
+md-list-item.todos:hover {
+    background-color: rgba(158,158,158,0.2);
+}
+
+md-icon.nav-bar {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+}
+
+button.md-button.nav-bar.md-icon-button {
+    height: 60px;
+    width: 60px;
+    margin-left: 0;
+    margin-top: 20px;
 }

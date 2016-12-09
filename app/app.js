@@ -192,13 +192,28 @@
 
 
 
-        .directive('tabAction', function() {
-            return function(scope, element, attrs) {
-                element.bind('keydown keypress', function(event) {
+        .directive('tabAction', function () {
+            return function (scope, element, attrs) {
+                element.bind('keydown keypress', function (event) {
                     if (event.which === 9) {
                         event.preventDefault();
-                        scope.$apply(function() {
+                        scope.$apply(function () {
                             scope.$eval(attrs.tabAction);
+                        });
+                    }
+                });
+            };
+        })
+
+
+
+        .directive('shiftTabAction', function () {
+            return function (scope, element, attrs) {
+                element.bind('keydown keypress', function (event) {
+                    if (event.shiftKey && event.which == 9) {
+                        event.preventDefault();
+                        scope.$apply(function () {
+                            scope.$eval(attrs.shiftTabAction);
                         });
                     }
                 });
@@ -948,7 +963,7 @@
                 }
             };
 
-            vm.childCompletedFilter = function(child) {
+            vm.childCompletedFilter = function (child) {
                 if (!vm.showCompleted) {
                     return child.completed === false;
                 }
@@ -998,13 +1013,13 @@
 
 
             vm.updateChild = function (child) {
-                vm.childTodos.$save(child).then(function(ref) {
+                vm.childTodos.$save(child).then(function (ref) {
                     ref.key === child.$id;
                 });
             };
 
 
-            vm.removeChild = function(child) {
+            vm.removeChild = function (child) {
                 vm.childTodos.$remove(child);
             };
 
@@ -1055,10 +1070,10 @@
             };
 
 
-            vm.setChildDueDate = function(child) {
+            vm.setChildDueDate = function (child) {
                 child.dueDate = vm.newDate.getTime();
                 child.showDatePicker = false;
-                vm.childTodos.$save(child).then(function(ref) {
+                vm.childTodos.$save(child).then(function (ref) {
                     ref.key === child.$id;
                 });
                 vm.newDate = new Date();
@@ -1073,7 +1088,73 @@
                 if (todo.complete) {
 
                 }
-            }
+            };
+
+
+            vm.convertToParent = function (child) {
+                var child = child;
+                var childData = {
+                    complete: child.complete,
+                    createdDate: child.createdDate,
+                    dueDate: child.dueDate,
+                    project: child.project,
+                    showDatePicker: child.showDatePicker,
+                    title: child.title,
+                    user_id: child.user_id
+                };
+
+                var updates = {};
+
+                updates['/todos/' + child.$id] = childData;
+
+                firebase.database().ref().update(updates);
+
+                vm.childTodos.$remove(child);
+            };
+
+
+            vm.convertToChild = function (todo, index, prevTodo) {
+
+                if (index != 0) {
+                    var todo = todo;
+                    var todoData = {
+                        complete: todo.complete,
+                        createdDate: todo.createdDate,
+                        dueDate: todo.dueDate,
+                        parentId: prevTodo.$id,
+                        project: todo.project,
+                        showDatePicker: todo.showDatePicker,
+                        title: todo.title,
+                        user_id: todo.user_id
+                    };
+
+                    var childKey = firebase.database().ref('/childTodos').push().key;
+
+                    var updates = {};
+
+                    updates['/childTodos/' + childKey] = todoData;
+
+                    firebase.database().ref().update(updates);
+
+                    var childrenRef = firebase.database().ref('/childTodos').orderByChild('parentId').equalTo(todo.$id);
+                    var children = $firebaseArray(childrenRef);
+                    console.log('children: ', children);
+
+                    for (var i = 0; i < children.length; i++) {
+                        console.log('child: ', children[i]);
+                        console.log('childId: ', children[i].parentId);
+                        console.log('prevTodo: ', prevTodo.$id);
+                        children[i].parentId = prevTodo.$id;
+                        children.$save(i);
+                    };
+
+                    angular.forEach(children, function(value, key) {
+
+                    })
+
+                    //vm.todos.$remove(todo);
+                }
+            };
 
         })
 

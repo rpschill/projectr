@@ -6,11 +6,23 @@
             <div flex class="center">
                 <md-icon class="center" md-font-set="material-icons" style="margin-top: 15px;"> local_movies </md-icon>
                 <span class="center" flex>projectr</span>
+
+                <div class="md-tool-bar-tools" flex style="margin-top: 25px;">
+
+                    <md-button class="nav-bar md-icon-button">
+                        <md-icon class="nav-bar" md-font-set="material-icons"> today </md-icon>
+                    </md-button>
+
+                    <md-button class="nav-bar md-icon-button">
+                        <md-icon class="nav-bar" md-font-set="material-icons"> assignment </md-icon>
+                    </md-button>
+
+                </div>
             </div>
-            <span flex="85"></span>
+            <span flex="65"></span>
             <div flex class="center">
-                <md-button class="md-fab md-primary md-icon-button" flex ng-click="top.logOut()">
-                    <md-icon md-font-set="material-icons"> account_circle </md-icon>
+                <md-button class="nav-bar md-icon-button" flex ng-click="top.logOut()">
+                    <md-icon class="nav-bar" md-font-set="material-icons"> account_circle </md-icon>
                 </md-button>
             </div>
         </md-toolbar>
@@ -151,10 +163,10 @@
 
                     <md-list focus-iter="[focus-here]">
 
-                        <md-list-item class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter">
+                        <md-list-item class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter as filteredList">
                             <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
                             <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
-                                focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new tab-action="list.addChild(todo.$id)"></p>
+                                focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new tab-action="list.convertToChild(todo, $index, filteredList[$index - 1])"></p>
 
                             <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
                             <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
@@ -189,7 +201,7 @@
                         <md-list-item class="todos child-todos fade" ng-repeat-end ng-repeat="child in list.childTodos | filter : list.completedFilter" ng-if="child.parentId === todo.$id" style="margin-left: 50px;">
 
                             <md-checkbox class="strikethrough" ng-model="child.complete" ng-change="list.updateChild(child)" ng-repeat="v in [0]"></md-checkbox>
-                            <p class="todo-list-item strikethis" ng-model="child.title" contenteditable focus-here on-enter="list.addChild(todo.$id)" ng-change="list.updateChild(child)" delete-child-listener="list.removeChild(child)"></p>
+                            <p class="todo-list-item strikethis" ng-model="child.title" contenteditable focus-here on-enter="list.addChild(todo.$id)" ng-change="list.updateChild(child)" delete-child-listener="list.removeChild(child)" shift-tab-action="list.convertToParent(child)"></p>
 
                             <md-datepicker ng-model="list.newDate" value="child.dueDate" md-open-on-focus ng-show="child.showDatePicker" ng-change="list.setChildDueDate(child)"></md-datepicker>
                             <md-button class="md-secondary md-warn" ng-show="child.dueDate != '' && !child.showDatePicker" ng-click="child.showDatePicker = !child.showDatePicker">
