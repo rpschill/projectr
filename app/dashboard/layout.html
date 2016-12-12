@@ -1,57 +1,61 @@
-<div layout="row" layout-align="start stretch" layout-fill>
+<div layout="row" layout-fill>
 
-    <div style="min-width: 92px;" flex="5" layout-fill>
+    <div ng-controller="DashCtrl as dash" class="app-view" flex layout="row">
 
-        <md-toolbar class="md-hue-2" ng-controller="TopCtrl as top" layout-fill layout="column" layout-align="space-between center">
-            <div flex class="center">
-                <md-icon class="center" md-font-set="material-icons" style="margin-top: 15px;"> local_movies </md-icon>
-                <span class="center" flex>projectr</span>
+        <!--<section class="menus" layout="row" layout-align="start stretch" layout-fill flex> flex="15" style="min-width: 265px;"-->
 
-                <div class="md-tool-bar-tools" flex style="margin-top: 25px;">
+            <!--<div layout="column" class="menu-columns" layout-fill layout-align="start stretch">-->
 
-                    <md-button class="nav-bar md-icon-button">
-                        <md-icon class="nav-bar" md-font-set="material-icons"> today </md-icon>
-                    </md-button>
+            <md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" md-whiteframe="1">
 
-                    <md-button class="nav-bar md-icon-button">
-                        <md-icon class="nav-bar" md-font-set="material-icons"> assignment </md-icon>
-                    </md-button>
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <span>projectr</span>
+                        <span flex></span>
+                        <md-button class="md-icon-button" ng-click="dash.close()" hide-gt-md>
+                            <md-icon md-font-set="material-icons"> clear </md-icon>
+                        </md-button >
+                    </div>
+                </md-toolbar>
 
-                </div>
-            </div>
-            <span flex="65"></span>
-            <div flex class="center">
-                <md-button class="nav-bar md-icon-button" flex ng-click="top.logOut()">
-                    <md-icon class="nav-bar" md-font-set="material-icons"> account_circle </md-icon>
-                </md-button>
-            </div>
-        </md-toolbar>
+                <div class="folder-header" layout="row" layout-align="space-between center" style="border-bottom: solid 1px rgba(158,158,158,0.2); min-height: 50px;">
 
-    </div>
-
-    <div ng-controller="DashCtrl as dash" class="app-view" layout-padding flex layout="row">
-
-        <section class="menus" layout="row" layout-padding layout-align="start stretch" layout-fill flex="30">
-
-            <div layout="column" flex="50" class="menu-columns" layout-fill>
-
-                <div class="folder-header" layout="row" layout-align="space-between center">
-
-                    <div flex>
+                    <div style="padding-left: 12px;">
                         <md-icon md-font-set="material-icons" style="font-size: 18px;"> folder </md-icon>
                         Folders
                     </div>
 
                     <div class="folder-settings">
-                        <md-button class="md-icon-button" ng-click="dash.showDelete = !dash.showDelete">
-                            <md-icon md-font-set="material-icons"> settings </md-icon>
-                        </md-button>
+                        <md-menu>
+
+                            <md-button class="md-icon-button" ng-click="dash.openMenu($mdOpenMenu, $event)">
+                                <md-icon md-font-set="material-icons"> more_horiz </md-icon>
+                            </md-button>
+
+                            <md-menu-content>
+
+                                <md-menu-item>
+                                    <md-button class="md-button-icon" ng-click="dash.addFolder()">
+                                        <md-icon md-font-set="material-icons"> create_new_folder </md-icon>
+                                        New Folder
+                                    </md-button>
+                                </md-menu-item>
+
+                                <md-menu-item>
+                                    <md-button ng-click="dash.showDelete = !dash.showDelete">
+                                        <md-icon md-font-set="material-icons"> mode_edit </md-icon>
+                                        Edit Folders
+                                    </md-button>
+                                </md-menu-item>
+
+                            </md-menu-content>
+
+                        </md-menu>
                     </div>
 
                 </div>
 
-                <div class="folder-list" layout="column">
-                    <md-divider></md-divider>
+                <div class="folder-list" layout="column" flex>
 
                     <md-content flex="auto">
 
@@ -62,176 +66,146 @@
 
                         <md-list ng-show="dash.folders.length >= 1">
 
-                            <md-list-item class="folder-list-item" ng-click="dash.loadProjects(folder.$id, folder.title)" ng-repeat="folder in dash.folders" ng-class="{active: folder.$id === dash.folder}">
+                            <md-list-item class="folder-list-item" ng-repeat-start="folder in dash.folders" ng-mouseenter="folder.showProjects = !folder.showProjects" ng-mouseleave="folder.showProjects = !folder.showProjects">
 
-                                <p>{{ folder.title }}</p>
+                                <p><strong>{{ folder.title }}</strong></p>
 
-                                <md-icon md-font-set="material-icons" ng-show="dash.showDelete" class="md-secondary md-primary" ng-click="dash.deleteFolder(folder, $event)">
+                                <md-button ng-show="folder.showProjects" ng-click="dash.addProject(ev)" class="md-secondary md-icon-button">
+                                    <md-icon md-font-set="material-icons"> playlist_add </md-icon>
+                                </md-button>
+
+                                <md-button ng-show="dash.showDelete" class="md-secondary md-primary md-icon-button" ng-click="dash.deleteFolder(folder, $event)">
+                                    <md-icon md-font-set="material-icons" >
                                     delete </md-icon>
+                                </md-button>
+
                             </md-list-item>
 
-                        </md-list>
-
-                    </md-content>
-
-                    <md-divider></md-divider>
-
-                    <md-button class="md-primary" ng-click="dash.addFolder($event)">
-                        New Folder
-                    </md-button>
-
-                </div>
-
-            </div>
-
-            <div layout="column" class="menu-columns" flex>
-
-                <div class="folder-header" layout="row" layout-align="space-between center">
-
-                    <div flex>
-                        <md-icon md-font-set="material-icons" style="font-size: 18px;"> assignment </md-icon>
-                        Projects
-                    </div>
-
-                    <div class="folder-settings">
-                        <md-button class="md-icon-button" ng-click="dash.showProjDelete = !dash.showProjDelete">
-                            <md-icon md-font-set="material-icons"> settings </md-icon>
-                        </md-button>
-                    </div>
-
-                </div>
-
-                <md-divider></md-divider>
-
-                <div class="folder-list" layout="column" flex="auto" ng-show="dash.projectView">
-
-                    <md-content>
-
-                        <md-list>
-
-                            <md-list-item ng-repeat="project in dash.projects | filter : dash.projectFilter" ng-click="dash.showTodos(project.$id, project.title)"
-                                ng-class="{active: project.$id === dash.projId}">
+                            <md-list-item ng-repeat-end ng-repeat="project in dash.projects" ng-if="project.folder === folder.$id" ng-click="dash.showTodos(project.$id, project.title)"
+                                ng-class="{active: project.$id === dash.projId}" style="margin-left: 25px;">
                                 <p class="folder-title">{{project.title}}</p>
                                 <md-icon md-font-set="material-icons" ng-show="dash.showProjDelete" class="md-secondary md-primary" ng-click="dash.deleteProject(project, $event)">
                                     delete </md-icon>
                             </md-list-item>
-
+                        
                         </md-list>
 
                     </md-content>
 
-                    <md-divider></md-divider>
+                    <md-toolbar>
+                        <div class="md-toolbar-tools">
+                            <span>FOOTER</span>
+                        </div>
+                    </md-toolbar>
 
+                    <!--<md-button class="md-primary" ng-click="dash.addFolder($event)">
+                        New Folder
+                    </md-button>
                     <md-button class="md-primary" ng-click="dash.addProject($event)">
                         New Project
-                    </md-button>
-
-                    <!--<div flex ng-show="dash.showProjectInput">
-                        <form name="newProject" ng-submit="dash.createProject(dash.folder)">
-
-                            <div>
-                                <md-input-container class="md-block">
-                                    <label>Title</label>
-                                    <input ng-model="dash.newProj" autofocus>
-                                </md-input-container>
-
-                                <md-button class="md-raised md-primary" type="submit">New Project</md-button>
-                            </div>
-                        </form>
-
-                    </div>-->
+                    </md-button>-->
 
                 </div>
 
-            </div>
+            </md-sidenav>
 
-        </section>
+            <!--</div>-->
+
+        <!--</section>-->
 
         <section flex>
-            <div ng-show="dash.todoView" flex class="md-whiteframe-4dp">
+            <div ng-show="dash.todoView" flex layout="column" layout-align="start" layout-fill>
 
-                <md-toolbar md-scroll-shrink>
+                <md-toolbar>
                     <div class="md-toolbar-tools">
-                        <span>{{dash.folderTitle}} / {{dash.projTitle}}</span>
-                        <span flex></span>
-
+                        <md-button ng-click="dash.open()" class="md-icon-button" hide-gt-md>
+                            <md-icon md-font-set="material-icons"> menu </md-icon>
+                        </md-button>
                     </div>
+
                 </md-toolbar>
 
-                <div layout="column" ng-controller="ListCtrl as list" layout-align="center space-between stretch" layout-padding flex="auto"
-                    ng-cloak>
+                <div layout="column" ng-controller="ListCtrl as list" layout-align="start space-between stretch" layout-padding flex="auto" ng-cloak>
 
-                    <md-list focus-iter="[focus-here]">
+                    <md-content>
 
-                        <md-list-item class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter as filteredList">
-                            <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
-                            <p class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
-                                focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new tab-action="list.convertToChild(todo, $index, filteredList[$index - 1])"></p>
+                        <md-list focus-iter="[focus-here]">
+                            <md-subheader class="md-primary">{{ dash.projTitle }}</md-subheader>
+                            <md-divider></md-divider>
 
-                            <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
-                            <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
-                                <md-icon md-font-set="material-icons"> schedule </md-icon>{{todo.dueDate | date: 'EEEE, MMM dd, yyyy'}}</md-button>
+                            <md-list-item id="{{$index}}" class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter as filteredList">
+                                <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
+                                <p autofocus class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
+                                    focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new tab-action="list.addChild(todo.$id)" focus-this="{{$index}}"></p>
 
-                            <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
-                                <md-fab-trigger>
-                                    <md-button aria-label="menu" class="md-fab md-warn md-mini">
-                                        <md-icon md-font-family="material-icons"> more_horiz </md-icon>
-                                    </md-button>
-                                </md-fab-trigger>
+                                <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
+                                <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
+                                    <md-icon md-font-set="material-icons"> schedule </md-icon>{{todo.dueDate | date: 'EEEE, MMM dd, yyyy'}}</md-button>
 
-                                <md-fab-actions>
-                                    <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.deleteTodo(todo, $event)">
-                                        <md-icon md-font-family="material-icons"> delete </md-icon>
-                                    </md-button>
-                                    <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
-                                        <md-icon md-font-family="material-icons"> hourglass_empty </md-icon>
-                                    </md-button>
-                                    <md-button class="md-fab md-raised md-mini" ng-click="todo.showDatePicker = !todo.showDatePicker">
-                                        <md-icon md-font-family="material-icons"> schedule </md-icon>
-                                    </md-button>
-                                    <md-button class="md-fab md-raised md-mini" ng-click="list.addChild(todo.$id)">
-                                        <md-icon md-font-family="material-icons"> subdirectory_arrow_right </md-icon>
-                                    </md-button>
-                                </md-fab-actions>
-                            </md-fab-speed-dial>
+                                <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
+                                    <md-fab-trigger>
+                                        <md-button aria-label="menu" class="md-icon-button md-warn md-mini">
+                                            <md-icon md-font-family="material-icons"> more_horiz </md-icon>
+                                        </md-button>
+                                    </md-fab-trigger>
 
+                                    <md-fab-actions>
+                                        <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.deleteTodo(todo, $event)">
+                                            <md-icon md-font-family="material-icons"> delete </md-icon>
+                                        </md-button>
+                                        <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
+                                            <md-icon md-font-family="material-icons"> hourglass_empty </md-icon>
+                                        </md-button>
+                                        <md-button class="md-fab md-raised md-mini" ng-click="todo.showDatePicker = !todo.showDatePicker">
+                                            <md-icon md-font-family="material-icons"> schedule </md-icon>
+                                        </md-button>
+                                        <md-button class="md-fab md-raised md-mini" ng-click="list.addChild(todo.$id)">
+                                            <md-icon md-font-family="material-icons"> subdirectory_arrow_right </md-icon>
+                                        </md-button>
+                                    </md-fab-actions>
+                                </md-fab-speed-dial>
 
-                        </md-list-item>
+                                <md-divider md-inset></md-divider>
 
-                        <md-list-item class="todos child-todos fade" ng-repeat-end ng-repeat="child in list.childTodos | filter : list.completedFilter" ng-if="child.parentId === todo.$id" style="margin-left: 50px;">
+                            </md-list-item>
 
-                            <md-checkbox class="strikethrough" ng-model="child.complete" ng-change="list.updateChild(child)" ng-repeat="v in [0]"></md-checkbox>
-                            <p class="todo-list-item strikethis" ng-model="child.title" contenteditable focus-here on-enter="list.addChild(todo.$id)" ng-change="list.updateChild(child)" delete-child-listener="list.removeChild(child)" shift-tab-action="list.convertToParent(child)"></p>
+                            <md-list-item class="todos child-todos fade" ng-repeat-end ng-repeat="child in list.childTodos | filter : list.completedFilter" ng-if="child.parentId === todo.$id" style="margin-left: 50px;">
 
-                            <md-datepicker ng-model="list.newDate" value="child.dueDate" md-open-on-focus ng-show="child.showDatePicker" ng-change="list.setChildDueDate(child)"></md-datepicker>
-                            <md-button class="md-secondary md-warn" ng-show="child.dueDate != '' && !child.showDatePicker" ng-click="child.showDatePicker = !child.showDatePicker">
-                                <md-icon md-font-set="material-icons"> schedule </md-icon>{{child.dueDate | date: 'EEEE, MMM dd, yyyy'}}</md-button>
+                                <md-checkbox class="strikethrough" ng-model="child.complete" ng-change="list.updateChild(child)" ng-repeat="v in [0]"></md-checkbox>
+                                <p class="todo-list-item strikethis" ng-model="child.title" contenteditable focus-here on-enter="list.addChild(todo.$id)" ng-change="list.updateChild(child)" delete-child-listener="list.removeChild(child)" shift-tab-action="list.convertToParent(child)"
+                                    focus-this="{{$index}}"></p>
 
-                            <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
-                                <md-fab-trigger>
-                                    <md-button aria-label="menu" class="md-fab md-warn md-mini">
-                                        <md-icon md-font-family="material-icons"> more_horiz </md-icon>
-                                    </md-button>
-                                </md-fab-trigger>
+                                <md-datepicker ng-model="list.newDate" value="child.dueDate" md-open-on-focus ng-show="child.showDatePicker" ng-change="list.setChildDueDate(child)"></md-datepicker>
+                                <md-button class="md-secondary md-warn" ng-show="child.dueDate != '' && !child.showDatePicker" ng-click="child.showDatePicker = !child.showDatePicker">
+                                    <md-icon md-font-set="material-icons"> schedule </md-icon>{{child.dueDate | date: 'EEEE, MMM dd, yyyy'}}</md-button>
 
-                                <md-fab-actions>
-                                    <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.removeChild(child)">
-                                        <md-icon md-font-family="material-icons"> delete </md-icon>
-                                    </md-button>
-                                    <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
-                                        <md-icon md-font-family="material-icons"> hourglass_empty </md-icon>
-                                    </md-button>
-                                    <md-button class="md-fab md-raised md-mini" ng-click="child.showDatePicker = !child.showDatePicker">
-                                        <md-icon md-font-family="material-icons"> schedule </md-icon>
-                                    </md-button>
-                                </md-fab-actions>
-                            </md-fab-speed-dial>
+                                <md-fab-speed-dial md-direction="left" class="md-scale md-secondary">
+                                    <md-fab-trigger>
+                                        <md-button aria-label="menu" class="md-icon-button md-warn md-mini">
+                                            <md-icon md-font-family="material-icons"> more_horiz </md-icon>
+                                        </md-button>
+                                    </md-fab-trigger>
 
-                            <md-divider ng-if="!$last"></md-divider>
+                                    <md-fab-actions>
+                                        <md-button class="md-fab md-raised md-mini md-danger" ng-click="list.removeChild(child)">
+                                            <md-icon md-font-family="material-icons"> delete </md-icon>
+                                        </md-button>
+                                        <md-button class="md-fab md-raised md-mini" ng-click="list.toggleRight()">
+                                            <md-icon md-font-family="material-icons"> hourglass_empty </md-icon>
+                                        </md-button>
+                                        <md-button class="md-fab md-raised md-mini" ng-click="child.showDatePicker = !child.showDatePicker">
+                                            <md-icon md-font-family="material-icons"> schedule </md-icon>
+                                        </md-button>
+                                    </md-fab-actions>
+                                </md-fab-speed-dial>
 
-                        </md-list-item>
+                                <md-divider md-inset></md-divider>
 
-                    </md-list>
+                            </md-list-item>
+
+                        </md-list>
+
+                    </md-content>
 
                     <md-toolbar class="footer">
                         <div class="md-toolbar-tools">

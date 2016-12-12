@@ -251,14 +251,26 @@
 
                     for (var i = atoms.length - 1; i >= 0; i--) {
                         if (atoms[i] === e.target) {
-                            if (e.keyCode === 38) {
+                            if (e.keyCode === 38 && i != 0) {
                                 toAtom = atoms[i - 1];
+                                console.log("atom[i]", atoms[i]);
+                                console.log('toAtom', toAtom);
+                                console.log('i', i);
+                                console.log('length', atoms.length);
                             }
                             if (e.keyCode === 40) {
                                 toAtom = atoms[i + 1];
+                                console.log("atom[i]", atoms[i]);
+                                console.log('toAtom', toAtom);
+                                console.log('i', i);
+                                console.log('length', atoms.length);
                             }
                             else if (e.keyCode === 13) {
                                 toAtom = atoms[i + 1];
+                                console.log("atom[i]", atoms[i]);
+                                console.log('toAtom', toAtom);
+                                console.log('i', i);
+                                console.log('length', atoms.length);
                             }
                             break;
                         }
@@ -272,12 +284,15 @@
                     if (e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 13)
                         e.preventDefault();
                 });
+
+
             };
         })
 
 
 
-        .directive('deleteTaskListener', function () {
+
+        .directive('deleteTaskListener', function ($timeout) {
             return {
                 restrict: 'A',
                 link: function (scope, element, attrs) {
@@ -288,6 +303,9 @@
                                     if (scope.todo.title === '') {
                                         scope.$apply(function () {
                                             scope.$eval(attrs.deleteTaskListener);
+                                            $timeout(function() {
+                                                element[0].focus();
+                                            });
                                         });
 
                                         event.preventDefault();
@@ -302,7 +320,7 @@
 
 
 
-        .directive('deleteChildListener', function () {
+        .directive('deleteChildListener', function ($timeout) {
             return {
                 restrict: 'A',
                 link: function (scope, element, attrs) {
@@ -313,6 +331,9 @@
                                     if (scope.child.title === '') {
                                         scope.$apply(function () {
                                             scope.$eval(attrs.deleteChildListener);
+                                            $timeout(function() {
+                                                element[0].focus();
+                                            });
                                         });
 
                                         event.preventDefault();
@@ -501,7 +522,7 @@
 
         // Dashboard
 
-        .controller('DashCtrl', function ($scope, $mdDialog, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth) {
+        .controller('DashCtrl', function ($scope, $mdDialog, $mdSidenav, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth) {
 
             var vm = this;
 
@@ -515,6 +536,7 @@
             vm.project;
             vm.showDelete = false;
             vm.showProjDelete = false;
+            vm.showFolderEdit = false;
 
             vm.folderId = vm.activeFolder.id;
             vm.folderTitle = vm.activeFolder.title;
@@ -529,6 +551,14 @@
 
             vm.newProj = '';
             vm.proj = '';
+
+            vm.close = function() {
+                $mdSidenav('left').close();
+            };
+
+            vm.open = function() {
+                $mdSidenav('left').open();
+            };
 
             $scope.$watch(
                 function () {
@@ -592,6 +622,10 @@
             vm.projectView = false;
             vm.todoView = false;
 
+            vm.openMenu = function($mdOpenMenu, ev) {
+                $mdOpenMenu(ev);
+            };
+
 
             vm.createFolder = function () {
                 var folderData = {
@@ -631,6 +665,11 @@
                     vm.projTitle = result;
                     vm.createFolder();
                 });
+            };
+
+
+            vm.updateFolder = function(folder) {
+                vm.folders.$save(folder);
             };
 
 
@@ -754,9 +793,8 @@
 
 
 
-            vm.projectFilter = function (project) {
-                var active = vm.folder;
-                return project.folder == active ? true : false;
+            vm.projectFilter = function (folder) {
+                return project.folder == folder ? true : false;
             };
 
 
@@ -904,6 +942,8 @@
             vm.toggleRight = function () {
                 $mdSidenav('right').toggle();
             };
+
+
 
             vm.addTodo = function () {
                 var todoData = {
@@ -1113,7 +1153,7 @@
             };
 
 
-            vm.convertToChild = function (todo, index, prevTodo) {
+            /*vm.convertToChild = function (todo, index, prevTodo) {
 
                 if (index != 0) {
                     var todo = todo;
@@ -1154,7 +1194,7 @@
 
                     //vm.todos.$remove(todo);
                 }
-            };
+            };*/
 
         })
 
