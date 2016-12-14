@@ -137,7 +137,7 @@ md-list-item p:focus {
 }
 
 md-toolbar.footer {
-    background-color: rgba(158,158,158,0.2);
+    background-color: rgba(56,56,56,0.2);
 }
 
 md-list-item.todos:hover {
@@ -159,4 +159,9 @@ button.md-button.nav-bar.md-icon-button {
     width: 60px;
     margin-left: 0;
     margin-top: 20px;
+}
+
+.footer-bar {
+    background-color: rgba(56,56,56,0.2);
+    min-height: 42px;
 }
