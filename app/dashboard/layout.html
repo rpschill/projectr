@@ -70,7 +70,7 @@
 
                                 <p><strong>{{ folder.title }}</strong></p>
 
-                                <md-button ng-show="folder.showProjects" ng-click="dash.addProject(ev)" class="md-secondary md-icon-button">
+                                <md-button ng-show="folder.showProjects" ng-click="dash.addProject(ev, folder.$id)" class="md-secondary md-icon-button">
                                     <md-icon md-font-set="material-icons"> playlist_add </md-icon>
                                 </md-button>
 

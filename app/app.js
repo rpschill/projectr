@@ -673,11 +673,12 @@
             };
 
 
-            vm.createProject = function () {
+            vm.createProject = function (folder) {
+                var folder = folder;
                 var projectData = {
                     title: vm.projTitle,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
-                    folder: vm.folder,
+                    folder: folder,
                     user_id: vm.user_id
                 };
 
@@ -686,13 +687,14 @@
                 var updates = {};
 
                 updates['/projects/' + vm.projectKey] = projectData;
-                updates['/folders/' + vm.folder + '/projects/' + vm.projectKey] = true;
+                updates['/folders/' + folder + '/projects/' + vm.projectKey] = true;
 
                 firebase.database().ref().update(updates);
             };
 
 
-            vm.addProject = function (ev) {
+            vm.addProject = function (ev, folder) {
+                var folder = folder;
                 var confirm = $mdDialog.prompt()
                     .title('Create new project')
                     .placeholder('Enter a title for your project')
@@ -703,7 +705,7 @@
 
                 $mdDialog.show(confirm).then(function (result) {
                     vm.projTitle = result;
-                    vm.createProject();
+                    vm.createProject(folder);
                 });
             };
 
@@ -798,7 +800,7 @@
             };
 
 
-            vm.addProject = function (ev, folder) {
+            /*vm.addProject = function (ev, folder) {
                 var folder = folder;
                 var confirm = $mdDialog.prompt()
                     .title('Create new project')
@@ -815,7 +817,7 @@
                 }).then(function () {
                     vm.showTodos(vm.projectKey, vm.projTitle);
                 });
-            };
+            };*/
 
 
             vm.deleteFolder = function (folder, ev) {
