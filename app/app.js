@@ -542,6 +542,8 @@
             vm.showProjDelete = false;
             vm.showFolderEdit = false;
 
+            vm.isMenuOpen = false;
+
             var ref = firebase.database().ref();
 
             vm.activeProject = activeProject.getActive();
@@ -562,6 +564,14 @@
 
             vm.open = function () {
                 $mdSidenav('left').open();
+            };
+
+            vm.openDetail = function() {
+                $mdSidenav('todoDetail').open();
+            };
+
+            vm.closeDetail = function() {
+                $mdSidenav('todoDetail').close();
             };
 
             $scope.$watch(

@@ -165,3 +165,7 @@ button.md-button.nav-bar.md-icon-button {
     background-color: rgba(56,56,56,0.2);
     min-height: 42px;
 }
+
+md-subheader {
+    background-color: rgba(56,56,56,0.2);
+}
