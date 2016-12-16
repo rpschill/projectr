@@ -40,11 +40,11 @@ h2.proj-title {
 }
 
 .menu-columns {
-    border-right: solid 1px rgba(158,158,158,0.2);
+    border-right: solid 1px rgba(56,56,56,0.2);
 }
 
 .folder-settings {
-    border-left: solid 1px rgba(158,158,158,0.2);
+    border-left: solid 1px rgba(56,56,56,0.2);
 }
 
 md-list-item.todos {
@@ -162,10 +162,14 @@ button.md-button.nav-bar.md-icon-button {
 }
 
 .footer-bar {
-    background-color: rgba(56,56,56,0.2);
+    background-color: #efefef;
     min-height: 42px;
 }
 
 md-subheader {
     background-color: rgba(56,56,56,0.2);
+}
+
+.folder-list {
+    background-color: #efefef;
 }

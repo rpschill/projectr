@@ -2,23 +2,15 @@
 
     <div ng-controller="DashCtrl as dash" class="app-view" flex layout="row" layout-align="space-around">
 
-        <!--<section class="menus" layout="row" layout-align="start stretch" layout-fill flex> flex="15" style="min-width: 265px;"-->
-
-        <!--<div layout="column" class="menu-columns" layout-fill layout-align="start stretch">-->
-
-        <md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')" md-whiteframe="1">
+        <md-sidenav class="md-sidenav-left" md-component-id="left" md-is-locked-open="dash.isFolderSidebarOpen" md-whiteframe="4">
 
             <md-toolbar>
                 <div class="md-toolbar-tools">
                     <span>projectr</span>
-                    <span flex></span>
-                    <md-button class="md-icon-button" ng-click="dash.close()" hide-gt-md>
-                        <md-icon md-font-set="material-icons"> close </md-icon>
-                    </md-button>
                 </div>
             </md-toolbar>
 
-            <div class="folder-header" layout="row" layout-align="space-between center" style="border-bottom: solid 1px rgba(158,158,158,0.2); min-height: 50px;">
+            <div class="folder-header" layout="row" layout-align="space-between center" style="border-bottom: solid 1px rgba(56,56,56,0.2); min-height: 50px;">
 
                 <div style="padding-left: 12px;">
                     <md-icon md-font-set="material-icons" style="font-size: 18px;"> folder </md-icon>
@@ -94,7 +86,7 @@
                 </md-content>
 
 
-                <div class="footer-bar" layout="row">
+                <div class="footer-bar" layout="row" layout-align="space-around center">
                     <md-menu flex>
                         <md-button class="md-icon-button" style="color: white;" ng-click="dash.openUserMenu($mdOpenMenu, $event)">
                             <md-icon md-font-set="material-icons"> account_box </md-icon>
@@ -118,14 +110,6 @@
                     </md-menu>
                 </div>
 
-
-                <!--<md-button class="md-primary" ng-click="dash.addFolder($event)">
-                        New Folder
-                    </md-button>
-                    <md-button class="md-primary" ng-click="dash.addProject($event)">
-                        New Project
-                    </md-button>-->
-
             </div>
 
         </md-sidenav>
@@ -138,7 +122,7 @@
 
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <md-button ng-click="dash.open()" class="md-icon-button" hide-gt-md>
+                    <md-button ng-click="dash.toggleFolderSidebar()" class="md-icon-button">
                         <md-icon md-font-set="material-icons"> menu </md-icon>
                     </md-button>
                 </div>
@@ -172,16 +156,16 @@
 
                         <md-divider></md-divider>
 
-                        <md-list focus-iter="[focus-here]">
+                        <md-list focus-iter="[focus-here]" style="background-color: #fff;">
 
 
                             <md-list-item id="{{$index}}" class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter"
                                 ng-mouseenter="todo.isOpen = !todo.isOpen"
-                                ng-mouseleave="todo.isOpen = !todo.isOpen">
+                                ng-mouseleave="todo.isOpen = !todo.isOpen" ng-dblclick="list.toggleDetail(todo.$id, list.todoLevel)">
                                 <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
                                 <p autofocus class="todo-list-item strikethis" contenteditable ng-model="todo.title" ng-change="list.updateTodo(todo)" on-enter="list.addTodo()"
                                     focus-here delete-task-listener="list.removeTodo(todo)" reset-focus-on-new tab-action="list.addChild(todo.$id)"
-                                    focus-this="{{$index}}"></p>
+                                    focus-this="{{$index}}" ctrl-right-arrow="list.toggleDetail(todo.$id, list.todoLevel)"></p>
 
                                 <md-datepicker ng-model="list.newDate" value="todo.dueDate" md-open-on-focus ng-show="todo.showDatePicker" ng-change="list.setDueDate(todo)"></md-datepicker>
                                 <md-button class="md-secondary md-warn" ng-show="todo.dueDate != '' && !todo.showDatePicker" ng-click="todo.showDatePicker = !todo.showDatePicker">
@@ -210,9 +194,9 @@
                                     </md-fab-actions>
                                 </md-fab-speed-dial>
 
-                                <md-button class="md-icon-button md-secondary" ng-click="dash.openDetail()">
+                                <!--<md-button class="md-icon-button md-secondary" ng-click="dash.openDetail()">
                                     <md-icon md-font-set="material-icons"> chevron_right </md-icon>
-                                </md-button>
+                                </md-button>-->
 
 
                                 <md-divider md-inset></md-divider>
@@ -221,12 +205,12 @@
 
                             <md-list-item class="todos child-todos fade" ng-repeat-end ng-repeat="child in list.childTodos | filter : list.completedFilter"
                                 ng-if="child.parentId === todo.$id" style="margin-left: 50px;" ng-mouseenter="child.isOpen = !child.isOpen"
-                                ng-mouseleave="child.isOpen = !child.isOpen">
+                                ng-mouseleave="child.isOpen = !child.isOpen" ng-dblclick="list.toggleDetail(child.$id, list.childLevel)">
 
                                 <md-checkbox class="strikethrough" ng-model="child.complete" ng-change="list.updateChild(child)" ng-repeat="v in [0]"></md-checkbox>
                                 <p autofocus class="todo-list-item strikethis" ng-model="child.title" contenteditable focus-here on-enter="list.addChild(todo.$id)"
                                     ng-change="list.updateChild(child)" delete-child-listener="list.removeChild(child)" reset-focus-on-new
-                                    shift-tab-action="list.convertToParent(child)" focus-this="{{$index}}"></p>
+                                    shift-tab-action="list.convertToParent(child)" focus-this="{{$index}}" ctrl-right-arrow="list.toggleDetail(child.$id, list.childLevel)"></p>
 
                                 <md-datepicker ng-model="list.newDate" value="child.dueDate" md-open-on-focus ng-show="child.showDatePicker" ng-change="list.setChildDueDate(child)"></md-datepicker>
                                 <md-button class="md-secondary md-warn" ng-show="child.dueDate != '' && !child.showDatePicker" ng-click="child.showDatePicker = !child.showDatePicker">
@@ -252,9 +236,9 @@
                                     </md-fab-actions>
                                 </md-fab-speed-dial>
 
-                                <md-button class="md-icon-button md-secondary" ng-click="dash.openDetail()">
+                                <!--<md-button class="md-icon-button md-secondary" ng-click="dash.openDetail()">
                                     <md-icon md-font-set="material-icons" ng-show="!dash.isDetailOpen"> chevron_right </md-icon>
-                                </md-button>
+                                </md-button>-->
 
                                 <md-divider md-inset></md-divider>
 
@@ -274,42 +258,80 @@
 
         </section>
 
-        <md-sidenav class="md-sidenav-right md-whiteframe-1dp" md-component-id="todoDetail">
+        <md-sidenav class="md-sidenav-right md-whiteframe-4dp" style="background-color: #fff;" md-component-id="todoDetail" md-is-locked-open="dash.isDetailOpen">
             
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <span flex></span>
                     <md-button class="md-icon-button" ng-click="dash.closeDetail()">
                         <md-icon md-font-set="material-icons"> close </md-icon>
                     </md-button>
                 </div>
             </md-toolbar>
 
-            <section>
+            <div ng-controller="detailCtrl as detail">
                 <div class="folder-header" layout="row" layout-align="space-between center" style="border-bottom: solid 1px rgba(158,158,158,0.2); min-height: 50px;">
-                    <span class="md-primary" style="padding-left: 12px;">Todo item title</span>
+                    <span style="padding-left: 12px; font-style: italic;"><strong>{{ detail.todoObj.title }}</strong></span>
                 </div>
 
-                <md-content>
-                    <md-subheader>
-                        Details
-                    </md-subheader>
+                <div layout="column" layout-align="start stretch">
 
-                    <div>
-                        Stuff
-                    </div>
-                    <md-divider></md-divider>
+                    <md-content flex="auto">
+                        <md-subheader class="md-primary">
+                            <span>Details</span>
+                        </md-subheader>
+                        
+                        <md-divider></md-divider>
 
-                    <md-subheader>
-                        Timers
-                    </md-subheader>
+                        <md-list>
 
-                    <div>
-                        timer Stuff
-                    </div>
-                    <md-divider></md-divider>
-                </md-content>
-            </section>
+                            <md-list-item ng-click="detail.showCalendar = !detail.showCalendar">
+                                <span ng-if="!detail.showCalendar">Set due date</span>
+                                <md-datepicker ng-show="detail.showCalendar" ng-model="detail.newDate" aria-placeholder="Set due date" md-min-date="detail.minDate" md-open-on-focus></md-datepicker>
+                                <span ng-if="detail.dueDate">Due Date: date</span>
+                                <md-divider></md-divider>
+                            </md-list-item>
+
+                            <md-list-item>
+                                <span>Set reminder</span>
+                                <md-divider></md-divider>
+                            </md-list-item>
+
+                            <md-list-item ng-click="detail.attachFile()">
+                                <span>Attach a file</span>
+                                <md-divider></md-divider>
+                            </md-list-item>
+
+                            <md-list-item ng-click="detail.showNoteInput = !detail.showNoteInput" class="md-2-line">
+                                <div class="md-list-item-text">
+                                    <span ng-if="!detail.showNoteInput">Add a note</span>
+                                    <md-input-container ng-if="detail.showNoteInput">
+                                        <label>Add a note</label>
+                                        <textarea ng-model="detail.notes" md-maxlength="150" rows="5"></textarea>
+                                    </md-input-container>
+                                    <md-button ng-if="detail.showNoteInput" class="md-primary md-raised" ng-click="detail.saveNote">Save Note</md-button>
+                                </div>
+                                <md-divider></md-divider>
+                            </md-list-item>
+
+                            <md-list-item>
+                                <span>Created on: {{ detail.todoObj.createdDate }}</span>
+                            </md-list-item>
+
+                        <md-divider></md-divider>
+
+                        <md-subheader class="md-primary">
+                            <span class="md-primary">Timers</span>
+                        </md-subheader>
+
+                        <md-divider></md-divider>
+
+                        <span>
+                            Timer Stuff
+                        </span>
+                        <md-divider></md-divider>
+                    </md-content>
+                </div>
+            </div>
 
         </md-sidenav>
 

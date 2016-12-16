@@ -156,6 +156,29 @@
         })
 
 
+        .factory('activeTodo', function () {
+
+            var activeTodo = {};
+
+            activeTodo.id = null;
+            activeTodo.level = null;
+
+            activeTodo.setActive = function (todoId, level) {
+                activeTodo.id = todoId;
+                activeTodo.level = level;
+            };
+
+            activeTodo.getActive = function () {
+                return {
+                    id: activeTodo.id,
+                    level: activeTodo.level
+                };
+            };
+
+            return activeTodo;
+        })
+
+
 
         // Directives
 
@@ -188,6 +211,20 @@
                         event.preventDefault();
                         scope.$apply(function () {
                             scope.$eval(attrs.onEnter);
+                        });
+                    }
+                });
+            };
+        })
+
+
+        .directive('ctrlRightArrow', function () {
+            return function (scope, element, attrs) {
+                element.bind('keydown keypress', function (event) {
+                    if (event.ctrlKey === true && event.which === 39) {
+                        event.preventDefault();
+                        scope.$apply(function () {
+                            scope.$eval(attrs.ctrlRightArrow);
                         });
                     }
                 });
@@ -526,7 +563,7 @@
 
         // Dashboard
 
-        .controller('DashCtrl', function ($scope, $mdDialog, $mdSidenav, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth) {
+        .controller('DashCtrl', function ($scope, $mdDialog, $mdSidenav, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth, activeTodo) {
 
             var vm = this;
 
@@ -543,6 +580,8 @@
             vm.showFolderEdit = false;
 
             vm.isMenuOpen = false;
+            vm.isDetailOpen = false;
+            vm.isFolderSidebarOpen = true;
 
             var ref = firebase.database().ref();
 
@@ -566,12 +605,9 @@
                 $mdSidenav('left').open();
             };
 
-            vm.openDetail = function() {
-                $mdSidenav('todoDetail').open();
-            };
-
-            vm.closeDetail = function() {
-                $mdSidenav('todoDetail').close();
+            vm.toggleFolderSidebar = function () {
+                vm.isFolderSidebarOpen = !vm.isFolderSidebarOpen;
+                
             };
 
             $scope.$watch(
@@ -597,7 +633,7 @@
             );
 
             $scope.$watch(
-                function() {
+                function () {
                     return activeProject.folderTitle;
                 },
                 function (newValue, oldValue) {
@@ -608,10 +644,10 @@
             );
 
             $scope.$watch(
-                function() {
+                function () {
                     return activeProject.folderId;
                 },
-                function(newValue, oldValue) {
+                function (newValue, oldValue) {
                     if (newValue != oldValue) {
                         vm.folderId = newValue;
                     }
@@ -662,7 +698,7 @@
                 $mdOpenMenu(ev);
             };
 
-            vm.openUserMenu = function($mdOpenMenu, ev) {
+            vm.openUserMenu = function ($mdOpenMenu, ev) {
                 $mdOpenMenu(ev);
             };
 
@@ -751,41 +787,6 @@
 
 
 
-
-
-
-
-            /*vm.showProjects = function (folder) {
-                var active = activeFolder.getActive();
-                if (!vm.projectView && active == null) {
-                    activeFolder.setActive(folder);
-                    vm.folder = folder;
-                    vm.projectView = true;
-                    vm.showProjectInputButton = true;
-                }
-                else if (vm.projectView && active == folder) {
-                    vm.projectView = false;
-                    vm.todoView = false;
-                    vm.showProjectInputButton = false;
-                    activeFolder.setActive(null);
-                    activeProject.setActive(null);
-                    vm.folder = null;
-                    vm.project = null;
-                }
-                else if (vm.projectView && active != folder) {
-                    $timeout(function () {
-                        vm.projectView = true;
-                        vm.todoView = false;
-                        vm.showProjectInputButton = true;
-                        activeFolder.setActive(folder);
-                        activeProject.setActive(null);
-                        vm.folder = folder;
-                        vm.project = null;
-                    });
-                }
-            };*/
-
-
             vm.showProjects = function (folder) {
                 var folder = folder;
                 activeFolder.setActive(folder);
@@ -805,25 +806,6 @@
             vm.showTodos = function (projectId, projectTitle, folderTitle, folderId) {
                 activeProject.setActive(projectId, projectTitle, folderTitle, folderId);
                 vm.todoView = true;
-
-                /* if (!vm.todoView && active == null) {
-                     activeProject.setActive(project);
-                     vm.project = project;
-                     vm.todoView = true;
-                 }
-                 else if (vm.todoView && active == project) {
-                     vm.todoView = false;
-                     activeProject.setActive(null);
-                     vm.project = null;
-                 }
-                 else if (vm.todoView && active != project) {
-                     $timeout(function () {
-                         vm.todoView = true;
-                         vm.projectView = true;
-                         activeProject.setActive(project);
-                         vm.project = project;
-                     });
-                 }*/
             };
 
 
@@ -831,7 +813,7 @@
             vm.folderMenu = function ($mdOpenMenu, ev, folder) {
                 vm.folder = folder;
                 $mdOpenMenu(ev);
-            }
+            };
 
 
 
@@ -839,25 +821,6 @@
                 return project.folder == folder ? true : false;
             };
 
-
-            /*vm.addProject = function (ev, folder) {
-                var folder = folder;
-                var confirm = $mdDialog.prompt()
-                    .title('Create new project')
-                    .placeholder('Enter a title for your project')
-                    .ariaLabel('Project title')
-                    .initialValue('')
-                    .targetEvent(ev)
-                    .ok('Create')
-                    .cancel('Cancel');
-
-                $mdDialog.show(confirm).then(function (result) {
-                    vm.projTitle = result;
-                    vm.createProject(folder);
-                }).then(function () {
-                    vm.showTodos(vm.projectKey, vm.projTitle);
-                });
-            };*/
 
 
             vm.deleteFolder = function (folder, ev) {
@@ -892,12 +855,51 @@
                 }, function () {
                     console.log('This project was not deleted');
                 });
-            }
+            };
 
         })
 
 
 
+        .controller('detailCtrl', function ($scope, $mdSidenav, $firebaseObject, activeTodo) {
+            var vm = this;
+
+            vm.todoId = activeTodo.id;
+            vm.todoLevel = activeTodo.level;
+
+            vm.newDate = new Date();
+            vm.minDate = new Date();
+
+            vm.todoObj;
+            vm.title;
+
+            $scope.$watch({
+                function() {
+                    return activeTodo.id;
+                },
+                function(newValue, oldValue) {
+                    if (newValue != oldValue) {
+                        vm.todoId = newValue;
+                    }
+                }
+            });
+
+            $scope.$watch({
+                function() {
+                    return activeTodo.level;
+                },
+                function(newValue, oldValue) {
+                    if (newValue != oldValue) {
+                        vm.todoLevel = newValue;
+                    }
+                }
+            });
+
+            if (vm.todoId) {
+                var ref = firebase.database().ref('/' + vm.todoLevel).child(vm.todoId);
+                vm.todoObj = $firebaseObject(ref);
+            }
+        })
 
 
         // Main application
@@ -964,7 +966,7 @@
 
 
 
-        .controller('ListCtrl', function ($scope, activeProject, activeFolder, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos, childTodos) {
+        .controller('ListCtrl', function ($scope, activeProject, activeFolder, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos, childTodos, activeTodo) {
 
             var vm = this;
 
@@ -974,6 +976,10 @@
             vm.todos = todos;
             vm.childTodos = childTodos;
             vm.todo;
+            vm.isDetailOpen = false;
+
+            vm.childLevel = 'childTodos';
+            vm.todoLevel = 'todos';
 
             vm.title = '';
             vm.childTitle = '';
@@ -981,8 +987,19 @@
             vm.showCompleted = false;
             vm.completeText = 'Show';
 
-            vm.toggleRight = function () {
-                $mdSidenav('right').toggle();
+            vm.openDetail = function () {
+                $mdSidenav('todoDetail').open();
+            };
+
+            vm.closeDetail = function () {
+                $mdSidenav('todoDetail').close();
+            };
+
+            vm.toggleDetail = function (todo, level) {
+                vm.isDetailOpen = !vm.isDetailOpen;
+                activeTodo.setActive(todo, level);
+                console.log('activeTodo.id', activeTodo.id);
+                console.log('activeTodo.level', activeTodo.level);
             };
 
 
