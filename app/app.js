@@ -54,6 +54,15 @@
                     }
                 })
 
+                .when('/dashboard', {
+                    templateUrl: 'app/main/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
                 .otherwise({ redirectTo: '/' });
 
 
@@ -169,13 +178,23 @@
             };
 
             activeTodo.getActive = function () {
-                return {
-                    id: activeTodo.id,
-                    level: activeTodo.level
-                };
+                return activeTodo;
             };
 
             return activeTodo;
+        })
+
+
+        .factory('detailTodo', function (activeTodo, $firebaseObject) {
+
+            if (activeTodo.id) {
+                var id = activeTodo.getActive().id;
+                var level = activeTodo.getActive().level;
+
+                var ref = firebase.database().ref('/' + level).child(id);
+
+                return $firebaseObject(ref);
+            }
         })
 
 
@@ -412,6 +431,8 @@
             vm.password = '';
             vm.uid = null;
 
+            vm.inboxId;
+
             vm.toggleSignIn = false;
 
             vm.toggleRight = function () {
@@ -421,7 +442,6 @@
             vm.close = function () {
                 $mdSidenav('home-right').close();
             };
-
 
 
             vm.showSignIn = function (ev) {
@@ -467,16 +487,16 @@
                             lastName: '',
                             createdDate: firebase.database.ServerValue.TIMESTAMP
                         });
-
-                        $location.path('/app');
                     });
+
+                $location.path('/dashboard');
             };
 
 
             vm.signIn = function () {
                 vm.auth.$signInWithEmailAndPassword(vm.email, vm.password)
                     .then(function (firebaseUser) {
-                        $location.path('/app');
+                        $location.path('/dashboard');
                     }).catch(function (error) {
                         console.error('Authentication failed: ', error);
                     });
@@ -578,10 +598,18 @@
             vm.showDelete = false;
             vm.showProjDelete = false;
             vm.showFolderEdit = false;
+            vm.showCalendar = false;
 
             vm.isMenuOpen = false;
             vm.isDetailOpen = false;
             vm.isFolderSidebarOpen = true;
+
+            vm.todoObj;
+
+            vm.newDate = new Date();
+            vm.dateObj = vm.newDate.getTime();
+
+
 
             var ref = firebase.database().ref();
 
@@ -607,7 +635,23 @@
 
             vm.toggleFolderSidebar = function () {
                 vm.isFolderSidebarOpen = !vm.isFolderSidebarOpen;
-                
+            };
+
+            vm.toggleDetail = function (todo, level) {
+                vm.isDetailOpen = !vm.isDetailOpen;
+                activeTodo.setActive(todo, level);
+
+                console.log('activeTodo.id', activeTodo.id);
+                console.log('activeTodo.level', activeTodo.level);
+
+                var ref = firebase.database().ref('/' + activeTodo.level).child(activeTodo.id);
+                vm.todoObj = $firebaseObject(ref);
+                var date = new Date();
+                vm.dueDate = date.setTime(vm.todoObj.dueDate);
+            };
+
+            vm.closeDetail = function () {
+                $mdSidenav('todoDetail').close();
             };
 
             $scope.$watch(
@@ -684,6 +728,15 @@
                     }
                 }
             );*/
+
+            vm.saveDueDate = function () {
+                vm.showCalendar = false;
+                var date = new Date();
+                var updatedDate = date.setTime(vm.dueDate);
+                vm.todoObj.dueDate = updatedDate;
+                vm.todoObj.$save();
+                
+            };
 
 
             vm.showInput = false;
@@ -857,15 +910,16 @@
                 });
             };
 
+
         })
 
 
 
-        .controller('detailCtrl', function ($scope, $mdSidenav, $firebaseObject, activeTodo) {
+        .controller('detailCtrl', function ($scope, $timeout, $mdSidenav, $firebaseObject, activeTodo, detailTodo) {
             var vm = this;
 
-            vm.todoId = activeTodo.id;
-            vm.todoLevel = activeTodo.level;
+            /*vm.todoId = activeTodo.getActive().id;
+            vm.todoLevel = activeTodo.getActive().level;*/
 
             vm.newDate = new Date();
             vm.minDate = new Date();
@@ -873,7 +927,11 @@
             vm.todoObj;
             vm.title;
 
-            $scope.$watch({
+            detailTodo.$loaded(function () {
+                vm.todo = detailTodo;
+            });
+
+            /*$scope.$watch({
                 function() {
                     return activeTodo.id;
                 },
@@ -895,10 +953,14 @@
                 }
             });
 
-            if (vm.todoId) {
-                var ref = firebase.database().ref('/' + vm.todoLevel).child(vm.todoId);
-                vm.todoObj = $firebaseObject(ref);
-            }
+            $timeout(function () {
+                if (vm.todoId) {
+                    var ref = firebase.database().ref('/' + vm.todoLevel).child(vm.todoId);
+                    vm.todoObj = $firebaseObject(ref);
+                };
+            });*/
+
+
         })
 
 

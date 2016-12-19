@@ -173,3 +173,24 @@ md-subheader {
 .folder-list {
     background-color: #efefef;
 }
+
+.action-tile {
+    border: solid rgba(56,56,56,0.2) 1px;
+    border-radius: 14px;
+    height: 250px;
+    width: 250px;
+    background-color: #B0BEC5;
+}
+
+#no-project {
+    font-size: 144px;
+    height: 144px;
+    width: 144px;
+    padding: 0;
+}
+
+.center {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+}
