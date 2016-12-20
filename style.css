@@ -194,3 +194,59 @@ md-subheader {
     margin-right: auto;
     margin-left: auto;
 }
+
+.folder-icons {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+.expand-collapse.ng-hide {
+    opacity: 0;
+    height: 0;
+}
+
+.expand-collapse.ng-hide-remove, .expand-collapse.ng-hide-add {
+    transition: 0.5s linear all;
+    opacity: 0;
+    height: 0;
+}
+
+.expand-collapse-ng-hide-remove-active {
+    opacity: 1;
+    height: auto;
+}
+
+.expand-collapse {
+    opacity: 1;
+}
+
+/*.expand-collapse.ng-hide-add-active {
+    transform: scaleY(1); 
+}
+
+.expand-collapse.ng-hide-remove-active {
+    transform: scaleY(0);
+}
+
+.expand-collapse.ng-hide-remove {
+    transform: scaleY(0);
+}
+
+.expand-collapse.ng-hide-add {
+    transform: scaleY(0);
+}
+
+.expand-collapse.ng-hide {
+    transform: scaleY(0);
+}
+
+.expand-collapse {
+    transform: scaleY(1);
+    transition: all 0.25s ease;
+    transform-origin: top;
+}*/
+
+button.md-button.md-sidemenu-toggle {
+    font-weight: bold;
+}

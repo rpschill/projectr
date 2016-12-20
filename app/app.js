@@ -6,7 +6,8 @@
         'ngRoute',
         'ngMessages',
         'ngMaterial',
-        'firebase'
+        'firebase',
+        'ngMaterialSidemenu'
     ])
 
         .run(['$rootScope', '$location', function ($rootScope, $location) {
@@ -58,6 +59,33 @@
                     templateUrl: 'app/main/layout.html',
                     resolve: {
                         'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .when('/profile', {
+                    templateUrl: 'app/profile/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .when('/settings', {
+                    templateUrl: 'app/settings/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .when('/reports', {
+                    templateUrl: 'app/reports/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
                             return Auth.$requireSignIn();
                         }]
                     }
@@ -648,6 +676,15 @@
                 vm.todoObj = $firebaseObject(ref);
                 var date = new Date();
                 vm.dueDate = date.setTime(vm.todoObj.dueDate);
+
+                var sublistRef = firebase.database().ref('/' + activeTodo.level + '/' + activeTodo.id).orderByChild('sublist');
+                vm.sublist = $firebaseArray(sublistRef);
+            };
+
+
+
+            vm.createSublistItem = function() {
+                
             };
 
             vm.closeDetail = function () {
