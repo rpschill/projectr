@@ -5,17 +5,17 @@
     <section layout="row" layout-align="space-around center" layout-padding flex>
 
         <span flex></span>
-        <md-content flex="60">
+        <md-content flex="60" layout="column" layout-align="center start">
             
-            <div>
+            <div flex>
                 <h1 style="font-size: 56px;">projectr <small style="font-size: 24px;">task and time management together</small></h1>
             </div>
 
-            <div>
-                <img src="http://placehold.it/850x450">
+            <div flex>
+                <img src="http://placehold.it/650x350">
             </div>
 
-            <div>
+            <div flex>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis pretium diam erat, efficitur sollicitudin lectus feugiat sed. Sed sed lacinia tellus. Duis quis leo id lorem varius commodo. Sed id vulputate nisi, ut semper elit. Fusce eget turpis ac purus dapibus commodo ac eget diam. Phasellus pellentesque vitae nisi eu euismod. Duis tempus dolor nulla, tempus posuere dolor ultricies nec. Morbi pellentesque mauris in tristique pretium. Nullam vitae mauris aliquam, interdum libero sed, bibendum ipsum. Maecenas congue convallis ultricies.
                 </p> 
             </div>
@@ -35,6 +35,10 @@
                         <label>password</label>
                         <input type="password" ng-model="home.password">
                     </md-input-container>
+                    <md-input-container>
+                        <label>verify password</label>
+                        <input type="password" ng-model="home.verifyPassword">
+                    </md-input-container>
                     <md-button class="md-primary md-raised" type="submit">Sign Up</md-button>
 
                 </div>
@@ -43,7 +47,7 @@
             <form ng-submit="home.signIn()" ng-show="home.toggleSignIn">
                 <div layout="column">
                     <md-input-container class="md-block">
-                        <label>user email address</label>
+                        <label>email address</label>
                         <input type="email" ng-model="home.email">
                     </md-input-container>
                     <md-input-container>
@@ -51,13 +55,22 @@
                         <input type="password" ng-model="home.password">
                     </md-input-container>
                     <md-button class="md-primary md-raised" type="submit">Sign In</md-button>
-
+                    <md-button flex ng-click="home.forgotPassword()" ng-show="home.toggleSignIn">forgot password?</md-button>
                 </div>
             </form>
-            
-            <md-button ng-click="home.toggleSignIn = !home.toggleSignIn" ng-show="!home.toggleSignIn">Already a user? Click here to sign in</md-button>
 
-            <md-button ng-click="home.toggleSignIn = !home.toggleSignIn" ng-hide="!home.toggleSignIn">new to projectr? Click here to register</md-button>
+            <div layout="column" layout-align="space-between center">
+            
+                <p flex class="center" style="text-transform: uppercase; font-size: 14px; margin-bottom: 0;" ng-show="!home.toggleSignIn">Already a user?</p>
+                <p flex class="center" style="text-transform: uppercase; font-size: 14px; margin-bottom: 0;"ng-hide="!home.toggleSignIn">New to projectr?</p>
+
+                <md-button flex style="border: 1px solid #000;" ng-click="home.toggleSignIn = !home.toggleSignIn" ng-show="!home.toggleSignIn">
+                    Click here to sign in
+                </md-button>
+
+                <md-button flex style="border: 1px solid #000;" ng-click="home.toggleSignIn = !home.toggleSignIn" ng-hide="!home.toggleSignIn">Click here to register</md-button>
+
+            </div>
 
         </div>
         

@@ -56,10 +56,10 @@
                         <md-sidemenu-content ng-repeat="folder in dash.folders" md-heading="{{folder.title}}" md-arrow="true">
                             <md-sidemenu-button ng-repeat="project in dash.projects" ng-if="project.folder === folder.$id" ng-click="dash.showTodos(project.$id, project.title, folder.title, folder.$id)">
                                 {{ project.title }}
-                                <md-divider></md-divider>
+
                             </md-sidemenu-button>
 
-                            <md-divider ng-if="!$last"></md-divider></md-divider>
+                            <md-divider ng-if="!$last"></md-divider>
 
                         </md-sidemenu-content>
                         
@@ -128,7 +128,7 @@
                         <md-menu-content>
 
                             <md-menu-item>
-                                <md-button ng-click="dash.auth.signOut()">
+                                <md-button ng-click="dash.signOut()">
                                     Sign Out
                                 </md-button>
                             </md-menu-item>
@@ -238,7 +238,7 @@
                         <md-list focus-iter="[focus-here]" style="background-color: #fff;">
 
 
-                            <md-list-item id="{{$index}}" class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter"
+                            <md-list-item id="{{$index}}" class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter as results"
                                 ng-mouseenter="todo.isOpen = !todo.isOpen"
                                 ng-mouseleave="todo.isOpen = !todo.isOpen"> <!--ng-dblclick="dash.toggleDetail(todo.$id, list.todoLevel)"-->
                                 <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>

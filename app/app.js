@@ -258,6 +258,9 @@
                         event.preventDefault();
                         scope.$apply(function () {
                             scope.$eval(attrs.onEnter);
+                            $timeout(function() {
+                                element[0].focus();
+                            });
                         });
                     }
                 });
@@ -268,7 +271,7 @@
         .directive('ctrlRightArrow', function () {
             return function (scope, element, attrs) {
                 element.bind('keydown keypress', function (event) {
-                    if (event.ctrlKey === true && event.which === 39) {
+                    if (event.altKey === true && event.which === 39) {
                         event.preventDefault();
                         scope.$apply(function () {
                             scope.$eval(attrs.ctrlRightArrow);
@@ -310,7 +313,7 @@
 
 
 
-        .directive('resetFocusOnNew', function ($timeout) {
+        /*.directive('resetFocusOnNew', function ($timeout) {
             return function (scope, element, attrs, ctrl) {
                 if (scope.$last) {
                     $timeout(function () {
@@ -325,6 +328,14 @@
                     }
                 });
             };
+        })*/
+
+
+
+        .directive('resetFocusOnNew', function($timeout) {
+            return function(scope, element, attrs) {
+
+            }
         })
 
 
@@ -339,7 +350,7 @@
 
                     for (var i = atoms.length - 1; i >= 0; i--) {
                         if (atoms[i] === e.target) {
-                            if (e.keyCode === 38 && i != 0) {
+                            if (e.keyCode === 38) {
                                 toAtom = atoms[i - 1];
                                 console.log("atom[i]", atoms[i]);
                                 console.log('toAtom', toAtom);
@@ -617,6 +628,11 @@
 
             vm.auth = Auth;
             vm.user_id = vm.auth.$getAuth().uid;
+            
+            vm.signOut = function() {
+                vm.auth.$signOut();
+                $location.path('/');
+            };
 
             vm.activeFolder = activeFolder;
             vm.folders = folders;
@@ -1144,6 +1160,7 @@
 
 
             vm.removeTodo = function (todo) {
+                //angular.element
                 vm.todos.$remove(todo);
             };
 
