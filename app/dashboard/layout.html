@@ -59,7 +59,38 @@
 
                             </md-sidemenu-button>
 
-                            <md-divider ng-if="!$last"></md-divider>
+                            <md-menu>
+
+                                <md-sidemenu-button ng-click="dash.openFolderOptions($mdOpenMenu, $event)">
+                                    <md-icon md-font-set="material-icons"> settings_applications </md-icon>
+                                    Folder Options
+                                </md-sidemenu-button>
+
+                                    <md-menu-content>
+                                        <md-menu-item>
+                                            <md-button ng-click="dash.addProject($event, folder)">
+                                                <md-icon md-font-set="material-icons"> add </md-icon>
+                                                New project in {{ folder.title }}
+                                            </md-button>
+                                        </md-menu-item>
+
+                                        <md-menu-divider></md-menu-divider>
+
+                                        <md-menu-item>
+                                            <md-button ng-click="dash.editFolder($event, folder)">
+                                                <md-icon md-font-set="material-icons"> edit </md-icon>
+                                                Edit folder
+                                            </md-button>
+                                        </md-menu-item>
+
+                                        <md-menu-item>
+                                            <md-button ng-click="dash.deleteFolder(folder, $event)">
+                                                <md-icon md-font-set="material-icons"> delete </md-icon>
+                                                Delete folder
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
 
                         </md-sidemenu-content>
                         

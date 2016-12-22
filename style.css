@@ -250,3 +250,9 @@ md-subheader {
 button.md-button.md-sidemenu-toggle {
     font-weight: bold;
 }
+
+button.folder-options {
+    background-color: black;
+}
+
+md-side-menu

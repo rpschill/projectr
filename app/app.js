@@ -313,7 +313,7 @@
 
 
 
-        /*.directive('resetFocusOnNew', function ($timeout) {
+        .directive('resetFocusOnNew', function ($timeout) {
             return function (scope, element, attrs, ctrl) {
                 if (scope.$last) {
                     $timeout(function () {
@@ -328,14 +328,6 @@
                     }
                 });
             };
-        })*/
-
-
-
-        .directive('resetFocusOnNew', function($timeout) {
-            return function(scope, element, attrs) {
-
-            }
         })
 
 
@@ -961,6 +953,11 @@
                 }, function () {
                     console.log('This project was not deleted');
                 });
+            };
+
+
+            vm.openFolderOptions = function($mdOpenMenu, ev) {
+                $mdOpenMenu(ev);
             };
 
 
