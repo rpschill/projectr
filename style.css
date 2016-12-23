@@ -255,4 +255,40 @@ button.folder-options {
     background-color: black;
 }
 
-md-side-menu
+md-sidemenu-button.active a.md-sidemenu-button.md-button {
+    background-color: #FF6E40;
+    color: #fff;
+}
+
+md-sidemenu-button.folder-menu a.md-sidemenu-button.md-button {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-style: italic;
+    background-color: rgba(158,158,158,0.2);
+    border-bottom: solid rgba(56,56,56,0.2) 1px;
+    border-top: solid rgba(56,56,56,0.2) 1px;
+}
+
+md-sidemenu-button.folder-menu a.md-sidemenu-button.md-button div {
+    height: 36px;
+    min-height: 36px;
+    
+}
+
+md-sidemenu-button.folder-menu a.md-sidemenu-button.md-button:hover {
+    background-color: #efefef;
+}
+
+.md-sidemenu-button md-icon.folder-menu {
+    margin-right: 2px;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+md-sidemenu-button.folder-menu,
+md-sidemenu-button.folder-menu > a.md-sidemenu.md-button {
+    height: 36px;
+    min-height: 36px;
+    
+}

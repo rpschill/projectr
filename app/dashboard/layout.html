@@ -18,31 +18,9 @@
                 </div>
 
                 <div class="folder-settings">
-                    <md-menu>
-
-                        <md-button class="md-icon-button" ng-click="dash.openMenu($mdOpenMenu, $event)">
-                            <md-icon md-font-set="material-icons"> more_horiz </md-icon>
-                        </md-button>
-
-                        <md-menu-content>
-
-                            <md-menu-item>
-                                <md-button class="md-button-icon" ng-click="dash.addFolder()">
-                                    <md-icon md-font-set="material-icons"> create_new_folder </md-icon>
-                                    New Folder
-                                </md-button>
-                            </md-menu-item>
-
-                            <md-menu-item>
-                                <md-button ng-click="dash.showDelete = !dash.showDelete">
-                                    <md-icon md-font-set="material-icons"> mode_edit </md-icon>
-                                    Edit Folders
-                                </md-button>
-                            </md-menu-item>
-
-                        </md-menu-content>
-
-                    </md-menu>
+                    <md-button class="md-icon-button" ng-click="dash.addFolder()">
+                        <md-icon md-font-set="material-icons"> add </md-icon>
+                    </md-button>
                 </div>
 
             </div>
@@ -54,43 +32,45 @@
                     <md-sidemenu>
 
                         <md-sidemenu-content ng-repeat="folder in dash.folders" md-heading="{{folder.title}}" md-arrow="true">
-                            <md-sidemenu-button ng-repeat="project in dash.projects" ng-if="project.folder === folder.$id" ng-click="dash.showTodos(project.$id, project.title, folder.title, folder.$id)">
-                                {{ project.title }}
 
-                            </md-sidemenu-button>
+                            <md-menu md-offset="35 35">
 
-                            <md-menu>
-
-                                <md-sidemenu-button ng-click="dash.openFolderOptions($mdOpenMenu, $event)">
-                                    <md-icon md-font-set="material-icons"> settings_applications </md-icon>
+                                <md-sidemenu-button class="folder-menu" ng-click="dash.openFolderOptions($mdOpenMenu, $event)">
                                     Folder Options
+                                    <md-icon class="folder-menu md-primary" md-menu-origin md-font-set="material-icons"> arrow_drop_down </md-icon>
                                 </md-sidemenu-button>
 
-                                    <md-menu-content>
-                                        <md-menu-item>
-                                            <md-button ng-click="dash.addProject($event, folder)">
-                                                <md-icon md-font-set="material-icons"> add </md-icon>
-                                                New project in {{ folder.title }}
-                                            </md-button>
-                                        </md-menu-item>
+                                <md-menu-content>
+                                    <md-menu-item>
+                                        <md-button ng-click="dash.addProject($event, folder)">
+                                            <md-icon md-font-set="material-icons"> add </md-icon>
+                                            New project in {{ folder.title }}
+                                        </md-button>
+                                    </md-menu-item>
 
-                                        <md-menu-divider></md-menu-divider>
+                                    <md-menu-divider></md-menu-divider>
 
-                                        <md-menu-item>
-                                            <md-button ng-click="dash.editFolder($event, folder)">
-                                                <md-icon md-font-set="material-icons"> edit </md-icon>
-                                                Edit folder
-                                            </md-button>
-                                        </md-menu-item>
+                                    <md-menu-item>
+                                        <md-button ng-click="dash.editFolder($event, folder)">
+                                            <md-icon md-font-set="material-icons"> edit </md-icon>
+                                            Edit folder
+                                        </md-button>
+                                    </md-menu-item>
 
-                                        <md-menu-item>
-                                            <md-button ng-click="dash.deleteFolder(folder, $event)">
-                                                <md-icon md-font-set="material-icons"> delete </md-icon>
-                                                Delete folder
-                                            </md-button>
-                                        </md-menu-item>
-                                    </md-menu-content>
-                                </md-menu>
+                                    <md-menu-item>
+                                        <md-button ng-click="dash.deleteFolder(folder, $event)">
+                                            <md-icon md-font-set="material-icons"> delete </md-icon>
+                                            Delete folder
+                                        </md-button>
+                                    </md-menu-item>
+                                </md-menu-content>
+                            </md-menu>
+
+                            <md-sidemenu-button ng-class="{active: project.$id === dash.projId}" ng-repeat="project in dash.projects" ng-if="project.folder === folder.$id" ng-click="dash.showTodos(project.$id, project.title, folder.title, folder.$id)">
+                                {{ project.title }}
+                            </md-sidemenu-button>
+
+                            <md-divider></md-divider>
 
                         </md-sidemenu-content>
                         
@@ -257,9 +237,23 @@
                                 <md-button class="md-primary md-secondary" ng-click="list.addTodo()">
                                     New Task
                                 </md-button>
-                                <md-button class="md-secondary" ng-click="list.toggleCompleted()">
-                                    {{ list.completeText }} Completed
-                                </md-button>
+                                <md-menu md-position-mode="target-right target" md-offset="0 35">
+                                    <md-button class="md-primary md-secondary md-icon-button" ng-click="dash.projectMenu($mdOpenMenu, $event)">
+                                        <md-icon md-menu-origin md-font-set="material-icons"> arrow_drop_down </md-icon>
+                                    </md-button>
+                                    <md-menu-content>
+                                        <md-menu-item>
+                                            <md-button ng-click="dash.editProject()">Rename Project</md-button>
+                                        </md-menu-item>
+                                        <md-menu-divider></md-menu-divider>
+                                        <md-menu-item>
+                                            <md-button class="md-secondary" ng-click="list.toggleCompleted()">
+                                                {{ list.completeText }} Completed Tasks
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+
                             </span>
                             </div>
                         </md-subheader>
@@ -269,7 +263,7 @@
                         <md-list focus-iter="[focus-here]" style="background-color: #fff;">
 
 
-                            <md-list-item id="{{$index}}" class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter as results"
+                            <md-list-item id="{{$index}}" class="todos fade" ng-repeat-start="todo in list.todos | filter : list.projFilter | filter : list.completedFilter"
                                 ng-mouseenter="todo.isOpen = !todo.isOpen"
                                 ng-mouseleave="todo.isOpen = !todo.isOpen"> <!--ng-dblclick="dash.toggleDetail(todo.$id, list.todoLevel)"-->
                                 <md-checkbox class="strikethrough" ng-model="todo.complete" ng-change="list.updateTodo(todo)" ng-repeat="v in [0]"></md-checkbox>
@@ -309,9 +303,11 @@
 
                                 <md-divider md-inset></md-divider>
 
+                                
+
                             </md-list-item>
 
-                            <md-list-item class="todos child-todos fade" ng-repeat-end ng-repeat="child in list.childTodos | filter : list.completedFilter"
+                            <md-list-item class="todos child-todos fade" ng-repeat-end ng-repeat="child in list.childTodos | filter : list.completedFilter as childResults"
                                 ng-if="child.parentId === todo.$id" style="margin-left: 50px;" ng-mouseenter="child.isOpen = !child.isOpen"
                                 ng-mouseleave="child.isOpen = !child.isOpen"> <!--ng-dblclick="dash.toggleDetail(child.$id, list.childLevel)"-->
 

@@ -67,7 +67,7 @@
                 .when('/profile', {
                     templateUrl: 'app/profile/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
                             return Auth.$requireSignIn();
                         }]
                     }
@@ -76,7 +76,7 @@
                 .when('/settings', {
                     templateUrl: 'app/settings/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
                             return Auth.$requireSignIn();
                         }]
                     }
@@ -85,7 +85,7 @@
                 .when('/reports', {
                     templateUrl: 'app/reports/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function(Auth, $location) {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
                             return Auth.$requireSignIn();
                         }]
                     }
@@ -185,6 +185,11 @@
                 activeProject.folderId = folderId;
             };
 
+            activeProject.setFolder = function(folderTitle, folderId) {
+                activeProject.folderTitle = folderTitle;
+                activeProject.folderId = folderId;
+            };
+
             activeProject.getActive = function () {
                 return activeProject;
             };
@@ -258,7 +263,7 @@
                         event.preventDefault();
                         scope.$apply(function () {
                             scope.$eval(attrs.onEnter);
-                            $timeout(function() {
+                            $timeout(function () {
                                 element[0].focus();
                             });
                         });
@@ -620,8 +625,8 @@
 
             vm.auth = Auth;
             vm.user_id = vm.auth.$getAuth().uid;
-            
-            vm.signOut = function() {
+
+            vm.signOut = function () {
                 vm.auth.$signOut();
                 $location.path('/');
             };
@@ -691,8 +696,8 @@
 
 
 
-            vm.createSublistItem = function() {
-                
+            vm.createSublistItem = function () {
+
             };
 
             vm.closeDetail = function () {
@@ -780,7 +785,7 @@
                 var updatedDate = date.setTime(vm.dueDate);
                 vm.todoObj.dueDate = updatedDate;
                 vm.todoObj.$save();
-                
+
             };
 
 
@@ -841,6 +846,24 @@
                 });
             };
 
+            vm.editFolder = function (ev, folder) {
+                var folder = folder;
+                var confirm = $mdDialog.prompt()
+                    .title('Edit folder')
+                    .placeholder('Enter a new name')
+                    .ariaLabel('Folder title')
+                    .initialValue(folder.title)
+                    .targetEvent(ev)
+                    .ok('Save')
+                    .cancel('Cancel');
+
+                $mdDialog.show(confirm).then(function (result) {
+                    folder.title = result;
+                    activeProject.setFolder(folder.title, folder.$id);
+                    vm.folders.$save(folder);
+                });
+            };
+
 
             vm.updateFolder = function (folder) {
                 vm.folders.$save(folder);
@@ -884,6 +907,11 @@
             };
 
 
+            vm.projectMenu = function($mdOpenMenu, ev) {
+                $mdOpenMenu(ev);
+            };
+
+
 
             vm.showProjects = function (folder) {
                 var folder = folder;
@@ -924,7 +952,7 @@
             vm.deleteFolder = function (folder, ev) {
                 var confirm = $mdDialog.confirm()
                     .title('Would you like to delete this folder?')
-                    .textContent('This will delete the folder forever.')
+                    .textContent('This will delete the folder and its projects forever.')
                     .targetEvent(ev)
                     .ok('Delete forever')
                     .cancel("No! Don't do it!");
@@ -956,7 +984,7 @@
             };
 
 
-            vm.openFolderOptions = function($mdOpenMenu, ev) {
+            vm.openFolderOptions = function ($mdOpenMenu, ev) {
                 $mdOpenMenu(ev);
             };
 
