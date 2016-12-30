@@ -292,3 +292,8 @@ md-sidemenu-button.folder-menu > a.md-sidemenu.md-button {
     min-height: 36px;
     
 }
+
+md-list-item.timer-action-buttons .md-secondary-container {
+    border-radius: 10px;
+    background-color: rgba(158,158,158,0.2);
+}
