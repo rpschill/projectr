@@ -9,7 +9,7 @@
         'firebase',
         'ngMaterialSidemenu',
         'timer',
-        'angular-momentjs'
+        
     ])
 
         .run(['$rootScope', '$location', function ($rootScope, $location) {
