@@ -6,7 +6,10 @@
         'ngRoute',
         'ngMessages',
         'ngMaterial',
-        'firebase'
+        'firebase',
+        'ngMaterialSidemenu',
+        'timer',
+        'angular-momentjs'
     ])
 
         .run(['$rootScope', '$location', function ($rootScope, $location) {
@@ -47,6 +50,42 @@
 
                 .when('/app', {
                     templateUrl: 'app/dashboard/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .when('/dashboard', {
+                    templateUrl: 'app/main/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .when('/profile', {
+                    templateUrl: 'app/profile/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .when('/settings', {
+                    templateUrl: 'app/settings/layout.html',
+                    resolve: {
+                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                            return Auth.$requireSignIn();
+                        }]
+                    }
+                })
+
+                .when('/reports', {
+                    templateUrl: 'app/reports/layout.html',
                     resolve: {
                         'currentAuth': ['Auth', '$location', function (Auth, $location) {
                             return Auth.$requireSignIn();
@@ -138,10 +177,19 @@
 
             activeProject.id = null;
             activeProject.title = null;
+            activeProject.folderTitle = null;
+            activeProject.folderId = null;
 
-            activeProject.setActive = function (projectId, projectTitle) {
+            activeProject.setActive = function (projectId, projectTitle, folderTitle, folderId) {
                 activeProject.id = projectId;
-                activeProject.title = projectTitle
+                activeProject.title = projectTitle;
+                activeProject.folderTitle = folderTitle;
+                activeProject.folderId = folderId;
+            };
+
+            activeProject.setFolder = function (folderTitle, folderId) {
+                activeProject.folderTitle = folderTitle;
+                activeProject.folderId = folderId;
             };
 
             activeProject.getActive = function () {
@@ -149,6 +197,26 @@
             };
 
             return activeProject;
+        })
+
+
+        .factory('activeTodo', function () {
+
+            var activeTodo = {};
+
+            activeTodo.id = null;
+            activeTodo.level = null;
+
+            activeTodo.setActive = function (todoId, level) {
+                activeTodo.id = todoId;
+                activeTodo.level = level;
+            };
+
+            activeTodo.getActive = function () {
+                return activeTodo;
+            };
+
+            return activeTodo;
         })
 
 
@@ -184,6 +252,23 @@
                         event.preventDefault();
                         scope.$apply(function () {
                             scope.$eval(attrs.onEnter);
+                            $timeout(function () {
+                                element[0].focus();
+                            });
+                        });
+                    }
+                });
+            };
+        })
+
+
+        .directive('ctrlRightArrow', function () {
+            return function (scope, element, attrs) {
+                element.bind('keydown keypress', function (event) {
+                    if (event.altKey === true && event.which === 39) {
+                        event.preventDefault();
+                        scope.$apply(function () {
+                            scope.$eval(attrs.ctrlRightArrow);
                         });
                     }
                 });
@@ -253,12 +338,24 @@
                         if (atoms[i] === e.target) {
                             if (e.keyCode === 38) {
                                 toAtom = atoms[i - 1];
+                                console.log("atom[i]", atoms[i]);
+                                console.log('toAtom', toAtom);
+                                console.log('i', i);
+                                console.log('length', atoms.length);
                             }
                             if (e.keyCode === 40) {
                                 toAtom = atoms[i + 1];
+                                console.log("atom[i]", atoms[i]);
+                                console.log('toAtom', toAtom);
+                                console.log('i', i);
+                                console.log('length', atoms.length);
                             }
                             else if (e.keyCode === 13) {
                                 toAtom = atoms[i + 1];
+                                console.log("atom[i]", atoms[i]);
+                                console.log('toAtom', toAtom);
+                                console.log('i', i);
+                                console.log('length', atoms.length);
                             }
                             break;
                         }
@@ -272,12 +369,15 @@
                     if (e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 13)
                         e.preventDefault();
                 });
+
+
             };
         })
 
 
 
-        .directive('deleteTaskListener', function () {
+
+        .directive('deleteTaskListener', function ($timeout) {
             return {
                 restrict: 'A',
                 link: function (scope, element, attrs) {
@@ -288,6 +388,9 @@
                                     if (scope.todo.title === '') {
                                         scope.$apply(function () {
                                             scope.$eval(attrs.deleteTaskListener);
+                                            $timeout(function () {
+                                                element[0].focus();
+                                            });
                                         });
 
                                         event.preventDefault();
@@ -302,7 +405,7 @@
 
 
 
-        .directive('deleteChildListener', function () {
+        .directive('deleteChildListener', function ($timeout) {
             return {
                 restrict: 'A',
                 link: function (scope, element, attrs) {
@@ -313,6 +416,9 @@
                                     if (scope.child.title === '') {
                                         scope.$apply(function () {
                                             scope.$eval(attrs.deleteChildListener);
+                                            $timeout(function () {
+                                                element[0].focus();
+                                            });
                                         });
 
                                         event.preventDefault();
@@ -350,6 +456,8 @@
             vm.password = '';
             vm.uid = null;
 
+            vm.inboxId;
+
             vm.toggleSignIn = false;
 
             vm.toggleRight = function () {
@@ -359,7 +467,6 @@
             vm.close = function () {
                 $mdSidenav('home-right').close();
             };
-
 
 
             vm.showSignIn = function (ev) {
@@ -405,16 +512,16 @@
                             lastName: '',
                             createdDate: firebase.database.ServerValue.TIMESTAMP
                         });
-
-                        $location.path('/app');
                     });
+
+                $location.path('/dashboard');
             };
 
 
             vm.signIn = function () {
                 vm.auth.$signInWithEmailAndPassword(vm.email, vm.password)
                     .then(function (firebaseUser) {
-                        $location.path('/app');
+                        $location.path('/dashboard');
                     }).catch(function (error) {
                         console.error('Authentication failed: ', error);
                     });
@@ -501,12 +608,17 @@
 
         // Dashboard
 
-        .controller('DashCtrl', function ($scope, $mdDialog, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth) {
+        .controller('DashCtrl', function ($scope, $mdDialog, $mdSidenav, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth, activeTodo) {
 
             var vm = this;
 
             vm.auth = Auth;
             vm.user_id = vm.auth.$getAuth().uid;
+
+            vm.signOut = function () {
+                vm.auth.$signOut();
+                $location.path('/');
+            };
 
             vm.activeFolder = activeFolder;
             vm.folders = folders;
@@ -515,9 +627,19 @@
             vm.project;
             vm.showDelete = false;
             vm.showProjDelete = false;
+            vm.showFolderEdit = false;
+            vm.showCalendar = false;
 
-            vm.folderId = vm.activeFolder.id;
-            vm.folderTitle = vm.activeFolder.title;
+            vm.isMenuOpen = false;
+            vm.isDetailOpen = false;
+            vm.isFolderSidebarOpen = true;
+
+            vm.todoObj;
+
+            vm.newDate = new Date();
+            vm.dateObj = vm.newDate.getTime();
+
+
 
             var ref = firebase.database().ref();
 
@@ -529,6 +651,47 @@
 
             vm.newProj = '';
             vm.proj = '';
+
+            vm.folderId = vm.activeProject.folderId;
+            vm.folderTitle = vm.activeProject.folderTitle;
+
+            vm.close = function () {
+                $mdSidenav('left').close();
+            };
+
+            vm.open = function () {
+                $mdSidenav('left').open();
+            };
+
+            vm.toggleFolderSidebar = function () {
+                vm.isFolderSidebarOpen = !vm.isFolderSidebarOpen;
+            };
+
+            vm.toggleDetail = function (todo, level) {
+                vm.isDetailOpen = !vm.isDetailOpen;
+                activeTodo.setActive(todo, level);
+
+                console.log('activeTodo.id', activeTodo.id);
+                console.log('activeTodo.level', activeTodo.level);
+
+                var ref = firebase.database().ref('/' + activeTodo.level).child(activeTodo.id);
+                vm.todoObj = $firebaseObject(ref);
+                var date = new Date();
+                vm.dueDate = date.setTime(vm.todoObj.dueDate);
+
+                var sublistRef = firebase.database().ref('/' + activeTodo.level + '/' + activeTodo.id).orderByChild('sublist');
+                vm.sublist = $firebaseArray(sublistRef);
+            };
+
+
+
+            vm.createSublistItem = function () {
+
+            };
+
+            vm.closeDetail = function () {
+                $mdSidenav('todoDetail').close();
+            };
 
             $scope.$watch(
                 function () {
@@ -552,17 +715,9 @@
                 }
             );
 
-            if (vm.projId) {
-                var projRef = firebase.database().ref('/projects').child(vm.projId);
-                vm.projObj = $firebaseObject(projRef);
-                vm.pId = vm.projObj.$id;
-            };
-
-
-
             $scope.$watch(
                 function () {
-                    return activeFolder.title;
+                    return activeProject.folderTitle;
                 },
                 function (newValue, oldValue) {
                     if (newValue != oldValue) {
@@ -571,10 +726,9 @@
                 }
             );
 
-
             $scope.$watch(
                 function () {
-                    return activeFolder.id;
+                    return activeProject.folderId;
                 },
                 function (newValue, oldValue) {
                     if (newValue != oldValue) {
@@ -582,6 +736,21 @@
                     }
                 }
             );
+
+            if (vm.projId) {
+                var projRef = firebase.database().ref('/projects').child(vm.projId);
+                vm.projObj = $firebaseObject(projRef);
+                vm.pId = vm.projObj.$id;
+            };
+
+            vm.saveDueDate = function () {
+                vm.showCalendar = false;
+                var date = new Date();
+                var updatedDate = date.setTime(vm.dueDate);
+                vm.todoObj.dueDate = updatedDate;
+                vm.todoObj.$save();
+
+            };
 
 
             vm.showInput = false;
@@ -591,6 +760,14 @@
 
             vm.projectView = false;
             vm.todoView = false;
+
+            vm.openMenu = function ($mdOpenMenu, ev) {
+                $mdOpenMenu(ev);
+            };
+
+            vm.openUserMenu = function ($mdOpenMenu, ev) {
+                $mdOpenMenu(ev);
+            };
 
 
             vm.createFolder = function () {
@@ -633,12 +810,36 @@
                 });
             };
 
+            vm.editFolder = function (ev, folder) {
+                var folder = folder;
+                var confirm = $mdDialog.prompt()
+                    .title('Edit folder')
+                    .placeholder('Enter a new name')
+                    .ariaLabel('Folder title')
+                    .initialValue(folder.title)
+                    .targetEvent(ev)
+                    .ok('Save')
+                    .cancel('Cancel');
 
-            vm.createProject = function () {
+                $mdDialog.show(confirm).then(function (result) {
+                    folder.title = result;
+                    activeProject.setFolder(folder.title, folder.$id);
+                    vm.folders.$save(folder);
+                });
+            };
+
+
+            vm.updateFolder = function (folder) {
+                vm.folders.$save(folder);
+            };
+
+
+            vm.createProject = function (folder) {
+                var folder = folder;
                 var projectData = {
                     title: vm.projTitle,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
-                    folder: vm.folder,
+                    folder: folder,
                     user_id: vm.user_id
                 };
 
@@ -647,13 +848,14 @@
                 var updates = {};
 
                 updates['/projects/' + vm.projectKey] = projectData;
-                updates['/folders/' + vm.folder + '/projects/' + vm.projectKey] = true;
+                updates['/folders/' + folder + '/projects/' + vm.projectKey] = true;
 
                 firebase.database().ref().update(updates);
             };
 
 
-            vm.addProject = function (ev) {
+            vm.addProject = function (ev, folder) {
+                var folder = folder;
                 var confirm = $mdDialog.prompt()
                     .title('Create new project')
                     .placeholder('Enter a title for your project')
@@ -664,45 +866,15 @@
 
                 $mdDialog.show(confirm).then(function (result) {
                     vm.projTitle = result;
-                    vm.createProject();
+                    vm.createProject(folder);
                 });
             };
 
 
+            vm.projectMenu = function ($mdOpenMenu, ev) {
+                $mdOpenMenu(ev);
+            };
 
-
-
-
-
-            /*vm.showProjects = function (folder) {
-                var active = activeFolder.getActive();
-                if (!vm.projectView && active == null) {
-                    activeFolder.setActive(folder);
-                    vm.folder = folder;
-                    vm.projectView = true;
-                    vm.showProjectInputButton = true;
-                }
-                else if (vm.projectView && active == folder) {
-                    vm.projectView = false;
-                    vm.todoView = false;
-                    vm.showProjectInputButton = false;
-                    activeFolder.setActive(null);
-                    activeProject.setActive(null);
-                    vm.folder = null;
-                    vm.project = null;
-                }
-                else if (vm.projectView && active != folder) {
-                    $timeout(function () {
-                        vm.projectView = true;
-                        vm.todoView = false;
-                        vm.showProjectInputButton = true;
-                        activeFolder.setActive(folder);
-                        activeProject.setActive(null);
-                        vm.folder = folder;
-                        vm.project = null;
-                    });
-                }
-            };*/
 
 
             vm.showProjects = function (folder) {
@@ -721,28 +893,9 @@
 
 
 
-            vm.showTodos = function (projectId, projectTitle) {
-                activeProject.setActive(projectId, projectTitle);
+            vm.showTodos = function (projectId, projectTitle, folderTitle, folderId) {
+                activeProject.setActive(projectId, projectTitle, folderTitle, folderId);
                 vm.todoView = true;
-
-                /* if (!vm.todoView && active == null) {
-                     activeProject.setActive(project);
-                     vm.project = project;
-                     vm.todoView = true;
-                 }
-                 else if (vm.todoView && active == project) {
-                     vm.todoView = false;
-                     activeProject.setActive(null);
-                     vm.project = null;
-                 }
-                 else if (vm.todoView && active != project) {
-                     $timeout(function () {
-                         vm.todoView = true;
-                         vm.projectView = true;
-                         activeProject.setActive(project);
-                         vm.project = project;
-                     });
-                 }*/
             };
 
 
@@ -750,40 +903,20 @@
             vm.folderMenu = function ($mdOpenMenu, ev, folder) {
                 vm.folder = folder;
                 $mdOpenMenu(ev);
-            }
-
-
-
-            vm.projectFilter = function (project) {
-                var active = vm.folder;
-                return project.folder == active ? true : false;
             };
 
 
-            vm.addProject = function (ev, folder) {
-                var folder = folder;
-                var confirm = $mdDialog.prompt()
-                    .title('Create new project')
-                    .placeholder('Enter a title for your project')
-                    .ariaLabel('Project title')
-                    .initialValue('')
-                    .targetEvent(ev)
-                    .ok('Create')
-                    .cancel('Cancel');
 
-                $mdDialog.show(confirm).then(function (result) {
-                    vm.projTitle = result;
-                    vm.createProject(folder);
-                }).then(function () {
-                    vm.showTodos(vm.projectKey, vm.projTitle);
-                });
+            vm.projectFilter = function (folder) {
+                return project.folder == folder ? true : false;
             };
+
 
 
             vm.deleteFolder = function (folder, ev) {
                 var confirm = $mdDialog.confirm()
                     .title('Would you like to delete this folder?')
-                    .textContent('This will delete the folder forever.')
+                    .textContent('This will delete the folder and its projects forever.')
                     .targetEvent(ev)
                     .ok('Delete forever')
                     .cancel("No! Don't do it!");
@@ -796,7 +929,31 @@
             };
 
 
-            vm.deleteProject = function (project, ev) {
+            vm.editProject = function (ev) {
+                var title = activeProject.getActive().projectTitle;
+                var folderTitle = activeProject.getActive().folderTitle;
+                var folderId = activeProject.getActive().folderId;
+                var confirm = $mdDialog.prompt()
+                    .title('Edit project')
+                    .placeholder('Enter a new name')
+                    .ariaLabel('Project title')
+                    .initialValue(title)
+                    .targetEvent(ev)
+                    .ok('Save')
+                    .cancel('Cancel');
+
+                $mdDialog.show(confirm).then(function (result) {
+                    var id = activeProject.getActive().id;
+                    title = result;
+                    var updates = {};
+                    updates['/projects/' + id + '/title'] = title;
+                    firebase.database().ref().update(updates);
+                    activeProject.setActive(id, title, folderTitle, folderId);
+                });
+            };
+
+
+            vm.deleteProject = function (ev) {
                 var confirm = $mdDialog.confirm()
                     .title('Would you like to delete this project?')
                     .textContent('This will delete the project forever.')
@@ -805,19 +962,121 @@
                     .cancel("No! Leave my project alone!");
 
                 $mdDialog.show(confirm).then(function () {
+                    var project = activeProject.getActive().id;
                     var updates = {};
-                    updates['/folders/' + vm.folder + '/projects/' + project.$id] = null;
+                    updates['/folders/' + vm.folder + '/projects/' + project] = null;
+                    updates['/projects/' + project] = null;
                     firebase.database().ref().update(updates);
-                    vm.projects.$remove(project);
+                    activeProject.setActive(null, null, null, null);
+                    vm.todoView = false;
                 }, function () {
                     console.log('This project was not deleted');
                 });
-            }
+            };
+
+
+            vm.openFolderOptions = function ($mdOpenMenu, ev) {
+                $mdOpenMenu(ev);
+            };
+
 
         })
 
 
 
+        .controller('TimerCtrl', function ($scope, $timeout, $firebaseObject, $firebaseArray, activeTodo, Auth) {
+
+            var vm = this;
+
+            vm.auth = Auth;
+            vm.user_id = vm.auth.$getAuth().uid;
+
+            vm.id = activeTodo.getActive().id;
+            vm.level = activeTodo.getActive().level;
+
+            vm.timers;
+
+            if (vm.id) {
+                var ref = firebase.database().ref('/' + vm.level).child(vm.id);
+                vm.todo = $firebaseObject(ref);
+                vm.todoId = vm.todo.$id;
+            }
+
+            var timerRef = firebase.database().ref('/timers').orderByChild('user_id').equalTo(vm.user_id);
+            vm.timers = $firebaseArray(timerRef);
+
+            vm.timerRunning = false;
+            vm.editedTimer = {};
+
+            vm.startTimer = function () {
+                $scope.$broadcast('timer-start');
+                console.log(activeTodo);
+                vm.timerRunning = true;
+            };
+
+            vm.stopTimer = function () {
+                $scope.$broadcast('timer-stop');
+                vm.timerRunning = false;
+            };
+
+            vm.addTimer = function (data) {
+                var timerData =  {
+                    parent: activeTodo.getActive().id,
+                    totalTime: data,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP,
+                    edit: false,
+                    user_id: vm.user_id
+                };
+
+                vm.timerKey = firebase.database().ref('/timers').push().key;
+
+                var updates = {};
+                updates['/timers/' + vm.timerKey] = timerData;
+
+                firebase.database().ref().update(updates);
+            };
+
+            $scope.$on('timer-stopped', function (ev, data) {
+                vm.addTimer(data);
+            });
+
+            vm.convertTime = function (timestamp) {
+                var converted = new Date(timestamp);
+                var dtString = converted.toLocaleString();
+                return dtString;
+            };
+
+            vm.cancelEditTime = function (timer) {
+                angular.copy(vm.editedTimer, timer);
+                timer.edit = false;
+            };
+
+            vm.saveTime = function (timer) {
+                timer.edit = false;
+                vm.timers.$save(timer);
+            };
+        })
+
+
+
+        .controller('detailCtrl', function ($scope, $timeout, $mdSidenav, $firebaseObject, activeTodo, detailTodo) {
+            var vm = this;
+
+            /*vm.todoId = activeTodo.getActive().id;
+            vm.todoLevel = activeTodo.getActive().level;*/
+
+            vm.newDate = new Date();
+            vm.minDate = new Date();
+
+            vm.todoObj;
+            vm.title;
+
+            detailTodo.$loaded(function () {
+                vm.todo = detailTodo;
+            });
+
+
+        })
 
 
         // Main application
@@ -884,7 +1143,7 @@
 
 
 
-        .controller('ListCtrl', function ($scope, activeProject, activeFolder, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos, childTodos) {
+        .controller('ListCtrl', function ($scope, activeProject, activeFolder, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos, childTodos, activeTodo) {
 
             var vm = this;
 
@@ -894,6 +1153,10 @@
             vm.todos = todos;
             vm.childTodos = childTodos;
             vm.todo;
+            vm.isDetailOpen = false;
+
+            vm.childLevel = 'childTodos';
+            vm.todoLevel = 'todos';
 
             vm.title = '';
             vm.childTitle = '';
@@ -901,9 +1164,22 @@
             vm.showCompleted = false;
             vm.completeText = 'Show';
 
-            vm.toggleRight = function () {
-                $mdSidenav('right').toggle();
+            vm.openDetail = function () {
+                $mdSidenav('todoDetail').open();
             };
+
+            vm.closeDetail = function () {
+                $mdSidenav('todoDetail').close();
+            };
+
+            vm.toggleDetail = function (todo, level) {
+                vm.isDetailOpen = !vm.isDetailOpen;
+                activeTodo.setActive(todo, level);
+                console.log('activeTodo.id', activeTodo.id);
+                console.log('activeTodo.level', activeTodo.level);
+            };
+
+
 
             vm.addTodo = function () {
                 var todoData = {
@@ -946,6 +1222,7 @@
 
 
             vm.removeTodo = function (todo) {
+                //angular.element
                 vm.todos.$remove(todo);
             };
 
@@ -995,7 +1272,8 @@
                     project: activeProject.getActive().id,
                     showDatePicker: false,
                     dueDate: '',
-                    user_id: vm.auth
+                    user_id: vm.auth,
+                    isOpen: false
                 };
 
                 var updates = {};
@@ -1113,7 +1391,7 @@
             };
 
 
-            vm.convertToChild = function (todo, index, prevTodo) {
+            /*vm.convertToChild = function (todo, index, prevTodo) {
 
                 if (index != 0) {
                     var todo = todo;
@@ -1154,7 +1432,7 @@
 
                     //vm.todos.$remove(todo);
                 }
-            };
+            };*/
 
         })
 

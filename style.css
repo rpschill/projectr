@@ -6,9 +6,7 @@ ng-view {
     height: 100vh;
 }
 
-.app-view {
-    margin-top: 10px;
-}
+
 
 .center {
     text-align: center;
@@ -42,11 +40,11 @@ h2.proj-title {
 }
 
 .menu-columns {
-    border-right: solid 3px rgba(158,158,158,0.2);
+    border-right: solid 1px rgba(56,56,56,0.2);
 }
 
 .folder-settings {
-    border-left: solid 1px rgba(158,158,158,0.2);
+    border-left: solid 1px rgba(56,56,56,0.2);
 }
 
 md-list-item.todos {
@@ -139,10 +137,14 @@ md-list-item p:focus {
 }
 
 md-toolbar.footer {
-    background-color: rgba(158,158,158,0.2);
+    background-color: rgba(56,56,56,0.2);
 }
 
 md-list-item.todos:hover {
+    background-color: rgba(158,158,158,0.2);
+}
+
+md-list-item.folder-list-item:hover {
     background-color: rgba(158,158,158,0.2);
 }
 
@@ -157,4 +159,141 @@ button.md-button.nav-bar.md-icon-button {
     width: 60px;
     margin-left: 0;
     margin-top: 20px;
+}
+
+.footer-bar {
+    background-color: #efefef;
+    min-height: 42px;
+}
+
+md-subheader {
+    background-color: rgba(56,56,56,0.2);
+}
+
+.folder-list {
+    background-color: #efefef;
+}
+
+.action-tile {
+    border: solid rgba(56,56,56,0.2) 1px;
+    border-radius: 14px;
+    height: 250px;
+    width: 250px;
+    background-color: #B0BEC5;
+}
+
+#no-project {
+    font-size: 144px;
+    height: 144px;
+    width: 144px;
+    padding: 0;
+}
+
+.center {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.folder-icons {
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+.expand-collapse.ng-hide {
+    opacity: 0;
+    height: 0;
+}
+
+.expand-collapse.ng-hide-remove, .expand-collapse.ng-hide-add {
+    transition: 0.5s linear all;
+    opacity: 0;
+    height: 0;
+}
+
+.expand-collapse-ng-hide-remove-active {
+    opacity: 1;
+    height: auto;
+}
+
+.expand-collapse {
+    opacity: 1;
+}
+
+/*.expand-collapse.ng-hide-add-active {
+    transform: scaleY(1); 
+}
+
+.expand-collapse.ng-hide-remove-active {
+    transform: scaleY(0);
+}
+
+.expand-collapse.ng-hide-remove {
+    transform: scaleY(0);
+}
+
+.expand-collapse.ng-hide-add {
+    transform: scaleY(0);
+}
+
+.expand-collapse.ng-hide {
+    transform: scaleY(0);
+}
+
+.expand-collapse {
+    transform: scaleY(1);
+    transition: all 0.25s ease;
+    transform-origin: top;
+}*/
+
+button.md-button.md-sidemenu-toggle {
+    font-weight: bold;
+}
+
+button.folder-options {
+    background-color: black;
+}
+
+md-sidemenu-button.active a.md-sidemenu-button.md-button {
+    background-color: #FF6E40;
+    color: #fff;
+}
+
+md-sidemenu-button.folder-menu a.md-sidemenu-button.md-button {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-style: italic;
+    background-color: rgba(158,158,158,0.2);
+    border-bottom: solid rgba(56,56,56,0.2) 1px;
+    border-top: solid rgba(56,56,56,0.2) 1px;
+}
+
+md-sidemenu-button.folder-menu a.md-sidemenu-button.md-button div {
+    height: 36px;
+    min-height: 36px;
+    
+}
+
+md-sidemenu-button.folder-menu a.md-sidemenu-button.md-button:hover {
+    background-color: #efefef;
+}
+
+.md-sidemenu-button md-icon.folder-menu {
+    margin-right: 2px;
+    font-size: 18px;
+    height: 18px;
+    width: 18px;
+}
+
+md-sidemenu-button.folder-menu,
+md-sidemenu-button.folder-menu > a.md-sidemenu.md-button {
+    height: 36px;
+    min-height: 36px;
+    
+}
+
+md-list-item.timer-action-buttons .md-secondary-container {
+    border-radius: 10px;
+    background-color: rgba(158,158,158,0.2);
 }

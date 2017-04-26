@@ -9,15 +9,23 @@
         </md-toolbar>
 
         <md-dialog-content>
-            <div class="md-dialog-content">
-                <md-input-container>
-                    <label>Email</label>
-                    <input type="email" ng-model="email" md-autofocus>
-                </md-input-container>
-                <md-input-container>
-                    <label>Password</label>
-                    <input type="password" ng-model="password">
-                </md-input-container>
+            <div class="md-dialog-content" layout="column" layout-align="space-between stretch" layout-padding>
+                <div flex>
+                    <md-input-container>
+                        <label>Email</label>
+                        <input type="email" ng-model="email" md-autofocus style="width: auto;">
+                    </md-input-container>
+                </div>
+                <div flex layout="row">
+                    <md-input-container>
+                        <label>Password</label>
+                        <input type="password" ng-model="password">
+                    </md-input-container>
+                    <md-input-container>
+                        <label>Verify Password</label>
+                        <input type="password" ng-model="verifyPassword">
+                    </md-input-container>
+                </div>
             </div>
 
             
@@ -25,8 +33,7 @@
         </md-dialog-content>
 
         <md-dialog-actions layout="column">
-            <md-button ng-click="register(email, password)">Sign up</md-button>
-            <md-button>Already a user?</md-button>
+            <md-button class="md-raised md-primary" ng-click="register(email, password)">Sign up</md-button>
         </md-dialog-actions>
     </form>
 </md-dialog>
