@@ -1,7 +1,7 @@
-(function () {
+( function () {
     'use strict';
 
-    angular.module('app', [
+    angular.module( 'app', [
         'ngAnimate',
         'ngRoute',
         'ngMessages',
@@ -9,23 +9,23 @@
         'firebase',
         'ngMaterialSidemenu',
         'timer',
-        
-    ])
 
-        .run(['$rootScope', '$location', function ($rootScope, $location) {
-            $rootScope.$on('$routeChangeError', function (event, next, previous, error) {
-                if (error === 'AUTH_REQUIRED') {
-                    $location.path('/');
+    ] )
+
+        .run( [ '$rootScope', '$location', function ( $rootScope, $location ) {
+            $rootScope.$on( '$routeChangeError', function ( event, next, previous, error ) {
+                if ( error === 'AUTH_REQUIRED' ) {
+                    $location.path( '/' );
                 }
-            });
-        }])
+            } );
+        }] )
 
-        .config(['$mdThemingProvider', '$locationProvider', '$routeProvider', function ($mdThemingProvider, $locationProvider, $routeProvider) {
+        .config( [ '$mdThemingProvider', '$locationProvider', '$routeProvider', function ( $mdThemingProvider, $locationProvider, $routeProvider ) {
 
             $mdThemingProvider
-                .theme('default')
-                .primaryPalette('deep-orange')
-                .accentPalette('red');
+                .theme( 'default' )
+                .primaryPalette( 'deep-orange' )
+                .accentPalette( 'red' );
 
             var config = {
                 apiKey: "AIzaSyCjaJi7MhYh3AblrRXEA5Cvno5T_syBxp0",
@@ -34,131 +34,141 @@
                 storageBucket: "projectr-e52e0.appspot.com",
                 messagingSenderId: "392164271176"
             };
-            firebase.initializeApp(config);
+            firebase.initializeApp( config );
 
 
             $routeProvider
 
-                .when('/', {
+                .when( '/', {
                     templateUrl: 'app/login/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', function (Auth) {
+                        'currentAuth': [ 'Auth', function ( Auth ) {
                             return Auth.$waitForSignIn();
                         }]
                     }
-                })
+                } )
 
-                .when('/app', {
+                .when( '/app', {
                     templateUrl: 'app/dashboard/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                        'currentAuth': [ 'Auth', '$location', function ( Auth, $location ) {
                             return Auth.$requireSignIn();
                         }]
                     }
-                })
+                } )
 
-                .when('/dashboard', {
+                .when( '/dashboard', {
                     templateUrl: 'app/main/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                        'currentAuth': [ 'Auth', '$location', function ( Auth, $location ) {
                             return Auth.$requireSignIn();
                         }]
                     }
-                })
+                } )
 
-                .when('/profile', {
+                .when( '/profile', {
                     templateUrl: 'app/profile/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                        'currentAuth': [ 'Auth', '$location', function ( Auth, $location ) {
                             return Auth.$requireSignIn();
                         }]
                     }
-                })
+                } )
 
-                .when('/settings', {
+                .when( '/settings', {
                     templateUrl: 'app/settings/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                        'currentAuth': [ 'Auth', '$location', function ( Auth, $location ) {
                             return Auth.$requireSignIn();
                         }]
                     }
-                })
+                } )
 
-                .when('/reports', {
+                .when( '/reports', {
                     templateUrl: 'app/reports/layout.html',
                     resolve: {
-                        'currentAuth': ['Auth', '$location', function (Auth, $location) {
+                        'currentAuth': [ 'Auth', '$location', function ( Auth, $location ) {
                             return Auth.$requireSignIn();
                         }]
                     }
-                })
+                } )
 
-                .otherwise({ redirectTo: '/' });
-
-
-        }])
+                .otherwise( { redirectTo: '/' } );
 
 
+        }] )
 
-        .factory('Auth', ['$firebaseAuth', function ($firebaseAuth) {
+
+
+        .factory( 'Auth', [ '$firebaseAuth', function ( $firebaseAuth ) {
             return $firebaseAuth();
-        }])
+        }] )
 
 
 
 
-        .factory('projects', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
-
-            var auth = Auth.$getAuth();
-            var uid = auth.uid;
-            var ref = firebase.database().ref('/projects').orderByChild('user_id').equalTo(uid);
-
-
-            return $firebaseArray(ref);
-        }])
-
-
-
-
-        .factory('todos', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
-
-            var auth = Auth.$getAuth();
-
-            var ref = firebase.database().ref('/todos').orderByChild('user_id').equalTo(auth.uid);
-            return $firebaseArray(ref);
-        }])
-
-
-
-        .factory('childTodos', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
-
-            var auth = Auth.$getAuth();
-
-            var ref = firebase.database().ref('/childTodos').orderByChild('user_id').equalTo(auth.uid);
-            return $firebaseArray(ref);
-        }])
-
-
-
-        .factory('folders', ['$firebaseArray', 'Auth', function ($firebaseArray, Auth) {
+        .factory( 'projects', [ '$firebaseArray', 'Auth', function ( $firebaseArray, Auth ) {
 
             var auth = Auth.$getAuth();
             var uid = auth.uid;
-            var ref = firebase.database().ref('/folders').orderByChild(uid).equalTo(true);
-
-            return $firebaseArray(ref);
-        }])
+            var ref = firebase.database().ref( '/projects' ).orderByChild( 'user_id' ).equalTo( uid );
 
 
+            return $firebaseArray( ref );
+        }] )
 
-        .factory('activeFolder', function () {
+
+
+
+        .factory( 'todos', [ '$firebaseArray', 'Auth', function ( $firebaseArray, Auth ) {
+
+            var auth = Auth.$getAuth();
+
+            var ref = firebase.database().ref( '/todos' ).orderByChild( 'user_id' ).equalTo( auth.uid );
+            return $firebaseArray( ref );
+        }] )
+
+
+
+        .factory( 'childTodos', [ '$firebaseArray', 'Auth', function ( $firebaseArray, Auth ) {
+
+            var auth = Auth.$getAuth();
+
+            var ref = firebase.database().ref( '/childTodos' ).orderByChild( 'user_id' ).equalTo( auth.uid );
+            return $firebaseArray( ref );
+        }] )
+
+
+
+        .factory( 'todoNotes', [ '$firebaseArray', 'Auth', function ( $firebaseArray, Auth ) {
+
+            var auth = Auth.$getAuth();
+
+            var ref = firebase.database().ref( '/todoNotes' ).orderByChild( 'user_id' ).equalTo( auth.uid );
+            return $firebaseArray( ref );
+        }] )
+
+
+
+        .factory( 'folders', [ '$firebaseArray', 'Auth', function ( $firebaseArray, Auth ) {
+
+            var auth = Auth.$getAuth();
+            var uid = auth.uid;
+            var ref = firebase.database().ref( '/folders' ).orderByChild( uid ).equalTo( true );
+
+            return $firebaseArray( ref );
+        }] )
+
+
+
+        .factory( 'activeFolder', function () {
 
             var activeFolder = {};
 
             activeFolder.id = null;
             activeFolder.title = null;
 
-            activeFolder.setActive = function (folderId, folderTitle) {
+            activeFolder.setActive = function ( folderId, folderTitle ) {
                 activeFolder.id = folderId;
                 activeFolder.title = folderTitle;
             };
@@ -168,10 +178,10 @@
             };
 
             return activeFolder;
-        })
+        } )
 
 
-        .factory('activeProject', function ($firebaseObject) {
+        .factory( 'activeProject', function ( $firebaseObject ) {
 
             var activeProject = {};
 
@@ -180,14 +190,14 @@
             activeProject.folderTitle = null;
             activeProject.folderId = null;
 
-            activeProject.setActive = function (projectId, projectTitle, folderTitle, folderId) {
+            activeProject.setActive = function ( projectId, projectTitle, folderTitle, folderId ) {
                 activeProject.id = projectId;
                 activeProject.title = projectTitle;
                 activeProject.folderTitle = folderTitle;
                 activeProject.folderId = folderId;
             };
 
-            activeProject.setFolder = function (folderTitle, folderId) {
+            activeProject.setFolder = function ( folderTitle, folderId ) {
                 activeProject.folderTitle = folderTitle;
                 activeProject.folderId = folderId;
             };
@@ -197,17 +207,17 @@
             };
 
             return activeProject;
-        })
+        } )
 
 
-        .factory('activeTodo', function () {
+        .factory( 'activeTodo', function () {
 
             var activeTodo = {};
 
             activeTodo.id = null;
             activeTodo.level = null;
 
-            activeTodo.setActive = function (todoId, level) {
+            activeTodo.setActive = function ( todoId, level ) {
                 activeTodo.id = todoId;
                 activeTodo.level = level;
             };
@@ -217,227 +227,242 @@
             };
 
             return activeTodo;
-        })
+        } )
 
 
 
         // Directives
 
-        .directive('contenteditable', function () {
+        .directive( 'contenteditable', function () {
             return {
                 require: 'ngModel',
-                link: function (scope, element, attrs, ngModel) {
+                link: function ( scope, element, attrs, ngModel ) {
 
                     function read() {
-                        ngModel.$setViewValue(element.html());
+                        ngModel.$setViewValue( element.html() );
                     };
 
                     ngModel.$render = function () {
-                        element.html(ngModel.$viewValue || '');
+                        element.html( ngModel.$viewValue || '' );
                     };
 
-                    element.bind('blur keyup change', function () {
-                        scope.$apply(read);
-                    });
+                    element.bind( 'blur keyup change', function () {
+                        scope.$apply( read );
+                    } );
                 }
             }
-        })
+        } )
 
 
 
-        .directive('onEnter', function () {
-            return function (scope, element, attrs) {
-                element.bind('keydown keypress', function (event) {
-                    if (event.which === 13) {
+        .directive( 'onEnter', function () {
+            return function ( scope, element, attrs ) {
+                element.bind( 'keydown keypress', function ( event ) {
+                    if ( event.which === 13 ) {
                         event.preventDefault();
-                        scope.$apply(function () {
-                            scope.$eval(attrs.onEnter);
-                            $timeout(function () {
-                                element[0].focus();
-                            });
-                        });
+                        scope.$apply( function () {
+                            scope.$eval( attrs.onEnter );
+                            $timeout( function () {
+                                element[ 0 ].focus();
+                            } );
+                        } );
                     }
-                });
+                } );
             };
-        })
+        } )
 
 
-        .directive('ctrlRightArrow', function () {
-            return function (scope, element, attrs) {
-                element.bind('keydown keypress', function (event) {
-                    if (event.altKey === true && event.which === 39) {
+        .directive( 'ctrlRightArrow', function () {
+            return function ( scope, element, attrs ) {
+                element.bind( 'keydown keypress', function ( event ) {
+                    if ( event.altKey === true && event.which === 39 ) {
                         event.preventDefault();
-                        scope.$apply(function () {
-                            scope.$eval(attrs.ctrlRightArrow);
-                        });
+                        scope.$apply( function () {
+                            scope.$eval( attrs.ctrlRightArrow );
+                        } );
                     }
-                });
+                } );
             };
-        })
+        } )
 
 
 
-        .directive('tabAction', function () {
-            return function (scope, element, attrs) {
-                element.bind('keydown keypress', function (event) {
-                    if (event.which === 9) {
+        .directive( 'tabAction', function () {
+            return function ( scope, element, attrs ) {
+                element.bind( 'keydown keypress', function ( event ) {
+                    if ( event.which === 9 ) {
                         event.preventDefault();
-                        scope.$apply(function () {
-                            scope.$eval(attrs.tabAction);
-                        });
+                        scope.$apply( function () {
+                            scope.$eval( attrs.tabAction );
+                        } );
                     }
-                });
+                } );
             };
-        })
+        } )
 
 
 
-        .directive('shiftTabAction', function () {
-            return function (scope, element, attrs) {
-                element.bind('keydown keypress', function (event) {
-                    if (event.shiftKey && event.which == 9) {
+        .directive( 'shiftTabAction', function () {
+            return function ( scope, element, attrs ) {
+                element.bind( 'keydown keypress', function ( event ) {
+                    if ( event.shiftKey && event.which == 9 ) {
                         event.preventDefault();
-                        scope.$apply(function () {
-                            scope.$eval(attrs.shiftTabAction);
-                        });
+                        scope.$apply( function () {
+                            scope.$eval( attrs.shiftTabAction );
+                        } );
                     }
-                });
+                } );
             };
-        })
+        } )
 
 
 
-        .directive('resetFocusOnNew', function ($timeout) {
-            return function (scope, element, attrs, ctrl) {
-                if (scope.$last) {
-                    $timeout(function () {
-                        element[0].focus();
-                    });
+        .directive( 'resetFocusOnNew', function ( $timeout ) {
+            return function ( scope, element, attrs, ctrl ) {
+                if ( scope.$last ) {
+                    $timeout( function () {
+                        element[ 0 ].focus();
+                    } );
                 }
-                scope.$watch('$last', function () {
-                    if (scope.$last) {
-                        $timeout(function () {
-                            element[0].focus();
-                        });
+                scope.$watch( '$last', function () {
+                    if ( scope.$last ) {
+                        $timeout( function () {
+                            element[ 0 ].focus();
+                        } );
                     }
-                });
+                } );
             };
-        })
+        } )
 
 
 
-        .directive('focusIter', function () {
-            return function (scope, elem, attrs) {
+        .directive( 'focusIter', function () {
+            return function ( scope, elem, attrs ) {
                 var atomSelector = attrs.focusIter;
 
-                elem.on('keyup', atomSelector, function (e) {
-                    var atoms = elem.find(atomSelector),
+                elem.on( 'keyup', atomSelector, function ( e ) {
+                    var atoms = elem.find( atomSelector ),
                         toAtom = null;
 
-                    for (var i = atoms.length - 1; i >= 0; i--) {
-                        if (atoms[i] === e.target) {
-                            if (e.keyCode === 38) {
-                                toAtom = atoms[i - 1];
-                                console.log("atom[i]", atoms[i]);
-                                console.log('toAtom', toAtom);
-                                console.log('i', i);
-                                console.log('length', atoms.length);
+                    for ( var i = atoms.length - 1; i >= 0; i-- ) {
+                        if ( atoms[ i ] === e.target ) {
+                            if ( e.keyCode === 38 ) {
+                                toAtom = atoms[ i - 1 ];
+                                console.log( "atom[i]", atoms[ i ] );
+                                console.log( 'toAtom', toAtom );
+                                console.log( 'i', i );
+                                console.log( 'length', atoms.length );
                             }
-                            if (e.keyCode === 40) {
-                                toAtom = atoms[i + 1];
-                                console.log("atom[i]", atoms[i]);
-                                console.log('toAtom', toAtom);
-                                console.log('i', i);
-                                console.log('length', atoms.length);
+                            if ( e.keyCode === 40 ) {
+                                toAtom = atoms[ i + 1 ];
+                                console.log( "atom[i]", atoms[ i ] );
+                                console.log( 'toAtom', toAtom );
+                                console.log( 'i', i );
+                                console.log( 'length', atoms.length );
                             }
-                            else if (e.keyCode === 13) {
-                                toAtom = atoms[i + 1];
-                                console.log("atom[i]", atoms[i]);
-                                console.log('toAtom', toAtom);
-                                console.log('i', i);
-                                console.log('length', atoms.length);
+                            else if ( e.keyCode === 13 ) {
+                                toAtom = atoms[ i + 1 ];
+                                console.log( "atom[i]", atoms[ i ] );
+                                console.log( 'toAtom', toAtom );
+                                console.log( 'i', i );
+                                console.log( 'length', atoms.length );
                             }
                             break;
                         }
                     }
 
-                    if (toAtom) toAtom.focus();
+                    if ( toAtom ) toAtom.focus();
 
-                });
+                } );
 
-                elem.on('keydown', atomSelector, function (e) {
-                    if (e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 13)
+                elem.on( 'keydown', atomSelector, function ( e ) {
+                    if ( e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 13 )
                         e.preventDefault();
-                });
+                } );
 
 
             };
-        })
+        } )
 
 
 
 
-        .directive('deleteTaskListener', function ($timeout) {
+        .directive( 'deleteTaskListener', function ( $timeout ) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
-                    element.focus(function () {
-                        attrs.$observe('ngModel', function (todo) {
-                            element.bind('keydown keypress', function (event) {
-                                if (event.which === 8) {
-                                    if (scope.todo.title === '') {
-                                        scope.$apply(function () {
-                                            scope.$eval(attrs.deleteTaskListener);
-                                            $timeout(function () {
-                                                element[0].focus();
-                                            });
-                                        });
+                link: function ( scope, element, attrs ) {
+                    element.focus( function () {
+                        attrs.$observe( 'ngModel', function ( todo ) {
+                            element.bind( 'keydown keypress', function ( event ) {
+                                if ( event.which === 8 ) {
+                                    if ( scope.todo.title === '' ) {
+                                        scope.$apply( function () {
+                                            scope.$eval( attrs.deleteTaskListener );
+                                            $timeout( function () {
+                                                element[ 0 ].focus();
+                                            } );
+                                        } );
 
                                         event.preventDefault();
                                     }
                                 }
-                            });
-                        });
-                    });
+                            } );
+                        } );
+                    } );
                 }
             };
-        })
+        } )
 
 
 
-        .directive('deleteChildListener', function ($timeout) {
+        .directive( 'deleteChildListener', function ( $timeout ) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
-                    element.focus(function () {
-                        attrs.$observe('ngModel', function (child) {
-                            element.bind('keydown keypress', function (event) {
-                                if (event.which === 8) {
-                                    if (scope.child.title === '') {
-                                        scope.$apply(function () {
-                                            scope.$eval(attrs.deleteChildListener);
-                                            $timeout(function () {
-                                                element[0].focus();
-                                            });
-                                        });
+                link: function ( scope, element, attrs ) {
+                    element.focus( function () {
+                        attrs.$observe( 'ngModel', function ( child ) {
+                            element.bind( 'keydown keypress', function ( event ) {
+                                if ( event.which === 8 ) {
+                                    if ( scope.child.title === '' ) {
+                                        scope.$apply( function () {
+                                            scope.$eval( attrs.deleteChildListener );
+                                            $timeout( function () {
+                                                element[ 0 ].focus();
+                                            } );
+                                        } );
 
                                         event.preventDefault();
                                     }
                                 }
-                            });
-                        });
-                    });
+                            } );
+                        } );
+                    } );
                 }
             };
-        })
+        } )
 
 
+        // Filters
 
+        .filter( 'numberFixedLen', function () {
+            return function ( n, len ) {
+                var num = parseInt( n, 10 );
+                len = parseInt( len, 10 );
+                if ( isNaN( num ) || isNaN( len ) ) {
+                    return n;
+                }
+                num = '' + num;
+                while ( num.length < len ) {
+                    num = '0' + num;
+                }
+                return num;
+            };
+        } )
 
 
         // Home page / login / auth
 
-        .controller('AuthCtrl', function (Auth, $location, $timeout) {
+        .controller( 'AuthCtrl', function ( Auth, $location, $timeout ) {
 
             var vm = this;
 
@@ -445,9 +470,9 @@
             vm.user = vm.auth.$getAuth();
 
 
-        })
+        } )
 
-        .controller('HomeCtrl', function ($mdSidenav, $mdDialog, $location, Auth) {
+        .controller( 'HomeCtrl', function ( $mdSidenav, $mdDialog, $location, Auth ) {
             var vm = this;
 
             vm.auth = Auth;
@@ -461,77 +486,77 @@
             vm.toggleSignIn = false;
 
             vm.toggleRight = function () {
-                $mdSidenav('home-right').toggle();
+                $mdSidenav( 'home-right' ).toggle();
             };
 
             vm.close = function () {
-                $mdSidenav('home-right').close();
+                $mdSidenav( 'home-right' ).close();
             };
 
 
-            vm.showSignIn = function (ev) {
-                $mdDialog.show({
+            vm.showSignIn = function ( ev ) {
+                $mdDialog.show( {
                     controller: DialogController,
                     templateUrl: 'app/login/login-dialog.html',
-                    parent: angular.element(document.body),
+                    parent: angular.element( document.body ),
                     targetEvent: ev,
                     clickOutsideToClose: true
-                })
-                    .then(function () {
-                        console.log('You clicked the Sign In button');
+                } )
+                    .then( function () {
+                        console.log( 'You clicked the Sign In button' );
                     }, function () {
-                        console.log('You said you forgot your password');
-                    });
+                        console.log( 'You said you forgot your password' );
+                    } );
             };
 
 
-            vm.showRegister = function (ev) {
-                $mdDialog.show({
+            vm.showRegister = function ( ev ) {
+                $mdDialog.show( {
                     controller: DialogController,
                     templateUrl: 'app/login/register-dialog.html',
-                    parent: angular.element(document.body),
+                    parent: angular.element( document.body ),
                     targetEvent: ev,
                     clickOutsideToClose: true
-                }).then(function () {
-                    console.log('You clicked the Sign Up button');
+                } ).then( function () {
+                    console.log( 'You clicked the Sign Up button' );
                 }, function () {
-                    console.log('You said you already have an account');
-                });
+                    console.log( 'You said you already have an account' );
+                } );
             };
 
 
             vm.registerUser = function () {
-                vm.auth.$createUserWithEmailAndPassword(vm.email, vm.password)
-                    .then(function (firebaseUser) {
+                vm.auth.$createUserWithEmailAndPassword( vm.email, vm.password )
+                    .then( function ( firebaseUser ) {
                         vm.uid = firebaseUser.uid;
-                    })
-                    .then(function () {
-                        firebase.database().ref('users/' + vm.uid).set({
+                    } )
+                    .then( function () {
+                        firebase.database().ref( 'users/' + vm.uid ).set( {
                             email: vm.email,
                             firstName: '',
                             lastName: '',
                             createdDate: firebase.database.ServerValue.TIMESTAMP
-                        });
-                    });
+                        } );
+                    } );
 
-                $location.path('/dashboard');
+                $location.path( '/dashboard' );
             };
 
 
             vm.signIn = function () {
-                vm.auth.$signInWithEmailAndPassword(vm.email, vm.password)
-                    .then(function (firebaseUser) {
-                        $location.path('/dashboard');
-                    }).catch(function (error) {
-                        console.error('Authentication failed: ', error);
-                    });
+                vm.auth.$signInWithEmailAndPassword( vm.email, vm.password )
+                    .then( function ( firebaseUser ) {
+                        $location.path( '/dashboard' );
+                    } ).catch( function ( error ) {
+                        console.error( 'Authentication failed: ', error );
+                    } );
             };
 
 
 
-            function DialogController($scope, $mdDialog, $location, $timeout, $firebaseArray, $firebaseObject, Auth) {
+            function DialogController( $scope, $mdDialog, $location, $timeout, $firebaseArray, $firebaseObject, Auth ) {
 
-                var ref = firebase.database().ref().child('/users');
+                var ref = firebase.database().ref().child( '/users' );
                 $scope.auth = Auth;
                 $scope.user = $scope.auth.$getAuth();
 
@@ -542,34 +567,34 @@
                 $scope.signInErrorMessage = '';
 
                 $scope.signIn = function () {
-                    $scope.auth.$signInWithEmailAndPassword($scope.email, $scope.password).then(function (firebaseUser) {
-                        console.log('Signed in as: ', firebaseUser.uid);
-                        $location.path('/app');
+                    $scope.auth.$signInWithEmailAndPassword( $scope.email, $scope.password ).then( function ( firebaseUser ) {
+                        console.log( 'Signed in as: ', firebaseUser.uid );
+                        $location.path( '/app' );
                         $mdDialog.hide();
-                    }).catch(function (error) {
-                        console.error('Authentication failed: ', error);
+                    } ).catch( function ( error ) {
+                        console.error( 'Authentication failed: ', error );
                         $scope.signInErrorMessage = 'Sign in failed.'
-                    });
+                    } );
                 };
 
                 $scope.register = function () {
                     $scope.folderId = null;
                     $scope.projectId = null;
                     $scope.uid = null;
-                    $scope.auth.$createUserWithEmailAndPassword($scope.email, $scope.password).then(function (firebaseUser) {
+                    $scope.auth.$createUserWithEmailAndPassword( $scope.email, $scope.password ).then( function ( firebaseUser ) {
                         $scope.uid = firebaseUser.uid;
-                        console.log("User " + $scope.uid + " created successfully");
-                    }).then(function () {
-                        firebase.database().ref('users/' + $scope.uid).set({
+                        console.log( "User " + $scope.uid + " created successfully" );
+                    } ).then( function () {
+                        firebase.database().ref( 'users/' + $scope.uid ).set( {
                             email: $scope.email,
                             firstName: '',
                             lastName: '',
                             createdDate: firebase.database.ServerValue.TIMESTAMP
-                        });
+                        } );
 
                         $mdDialog.hide();
-                        $location.path('/app');
-                    });
+                        $location.path( '/app' );
+                    } );
 
 
 
@@ -583,32 +608,32 @@
                 };
             }
 
-        })
+        } )
 
 
 
 
-        .controller('TopNavCtrl', function ($mdSidenav, $mdDialog) {
+        .controller( 'TopNavCtrl', function ( $mdSidenav, $mdDialog ) {
             var vm = this;
 
 
-        })
+        } )
 
 
 
 
-        .controller('RightNavCtrl', function ($mdSidenav) {
+        .controller( 'RightNavCtrl', function ( $mdSidenav ) {
 
             var vm = this;
 
 
-        })
+        } )
 
 
 
         // Dashboard
 
-        .controller('DashCtrl', function ($scope, $mdDialog, $mdSidenav, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth, activeTodo) {
+        .controller( 'DashCtrl', function ( $scope, $mdDialog, $mdSidenav, $location, $timeout, $route, $routeParams, $firebaseArray, $firebaseObject, activeFolder, activeProject, folders, projects, Auth, activeTodo ) {
 
             var vm = this;
 
@@ -617,7 +642,7 @@
 
             vm.signOut = function () {
                 vm.auth.$signOut();
-                $location.path('/');
+                $location.path( '/' );
             };
 
             vm.activeFolder = activeFolder;
@@ -656,31 +681,31 @@
             vm.folderTitle = vm.activeProject.folderTitle;
 
             vm.close = function () {
-                $mdSidenav('left').close();
+                $mdSidenav( 'left' ).close();
             };
 
             vm.open = function () {
-                $mdSidenav('left').open();
+                $mdSidenav( 'left' ).open();
             };
 
             vm.toggleFolderSidebar = function () {
                 vm.isFolderSidebarOpen = !vm.isFolderSidebarOpen;
             };
 
-            vm.toggleDetail = function (todo, level) {
+            vm.toggleDetail = function ( todo, level ) {
                 vm.isDetailOpen = !vm.isDetailOpen;
-                activeTodo.setActive(todo, level);
+                activeTodo.setActive( todo, level );
 
-                console.log('activeTodo.id', activeTodo.id);
-                console.log('activeTodo.level', activeTodo.level);
+                console.log( 'activeTodo.id', activeTodo.id );
+                console.log( 'activeTodo.level', activeTodo.level );
 
-                var ref = firebase.database().ref('/' + activeTodo.level).child(activeTodo.id);
-                vm.todoObj = $firebaseObject(ref);
+                var ref = firebase.database().ref( '/' + activeTodo.level ).child( activeTodo.id );
+                vm.todoObj = $firebaseObject( ref );
                 var date = new Date();
-                vm.dueDate = date.setTime(vm.todoObj.dueDate);
+                vm.dueDate = date.setTime( vm.todoObj.dueDate );
 
-                var sublistRef = firebase.database().ref('/' + activeTodo.level + '/' + activeTodo.id).orderByChild('sublist');
-                vm.sublist = $firebaseArray(sublistRef);
+                var sublistRef = firebase.database().ref( '/' + activeTodo.level + '/' + activeTodo.id ).orderByChild( 'sublist' );
+                vm.sublist = $firebaseArray( sublistRef );
             };
 
 
@@ -690,15 +715,15 @@
             };
 
             vm.closeDetail = function () {
-                $mdSidenav('todoDetail').close();
+                $mdSidenav( 'todoDetail' ).close();
             };
 
             $scope.$watch(
                 function () {
                     return activeProject.title;
                 },
-                function (newValue, oldValue) {
-                    if (newValue != oldValue) {
+                function ( newValue, oldValue ) {
+                    if ( newValue != oldValue ) {
                         vm.projTitle = newValue;
                     }
                 }
@@ -708,8 +733,8 @@
                 function () {
                     return activeProject.id;
                 },
-                function (newValue, oldValue) {
-                    if (newValue != oldValue) {
+                function ( newValue, oldValue ) {
+                    if ( newValue != oldValue ) {
                         vm.projId = newValue;
                     }
                 }
@@ -719,8 +744,8 @@
                 function () {
                     return activeProject.folderTitle;
                 },
-                function (newValue, oldValue) {
-                    if (newValue != oldValue) {
+                function ( newValue, oldValue ) {
+                    if ( newValue != oldValue ) {
                         vm.folderTitle = newValue;
                     }
                 }
@@ -730,23 +755,23 @@
                 function () {
                     return activeProject.folderId;
                 },
-                function (newValue, oldValue) {
-                    if (newValue != oldValue) {
+                function ( newValue, oldValue ) {
+                    if ( newValue != oldValue ) {
                         vm.folderId = newValue;
                     }
                 }
             );
 
-            if (vm.projId) {
-                var projRef = firebase.database().ref('/projects').child(vm.projId);
-                vm.projObj = $firebaseObject(projRef);
+            if ( vm.projId ) {
+                var projRef = firebase.database().ref( '/projects' ).child( vm.projId );
+                vm.projObj = $firebaseObject( projRef );
                 vm.pId = vm.projObj.$id;
             };
 
             vm.saveDueDate = function () {
                 vm.showCalendar = false;
                 var date = new Date();
-                var updatedDate = date.setTime(vm.dueDate);
+                var updatedDate = date.setTime( vm.dueDate );
                 vm.todoObj.dueDate = updatedDate;
                 vm.todoObj.$save();
 
@@ -761,12 +786,12 @@
             vm.projectView = false;
             vm.todoView = false;
 
-            vm.openMenu = function ($mdOpenMenu, ev) {
-                $mdOpenMenu(ev);
+            vm.openMenu = function ( $mdOpenMenu, ev ) {
+                $mdOpenMenu( ev );
             };
 
-            vm.openUserMenu = function ($mdOpenMenu, ev) {
-                $mdOpenMenu(ev);
+            vm.openUserMenu = function ( $mdOpenMenu, ev ) {
+                $mdOpenMenu( ev );
             };
 
 
@@ -776,65 +801,65 @@
                     createdDate: firebase.database.ServerValue.TIMESTAMP
                 };
 
-                vm.folderKey = firebase.database().ref('/folders').push().key;
+                vm.folderKey = firebase.database().ref( '/folders' ).push().key;
 
                 var updates = {};
 
-                updates['/folders/' + vm.folderKey] = folderData;
-                updates['/users/' + vm.user + '/folders/' + vm.folderKey] = true;
+                updates[ '/folders/' + vm.folderKey ] = folderData;
+                updates[ '/users/' + vm.user + '/folders/' + vm.folderKey ] = true;
 
-                firebase.database().ref().update(updates);
+                firebase.database().ref().update( updates );
 
                 updates = {};
 
-                updates['/folders/' + vm.folderKey + '/' + vm.user_id] = true;
-                firebase.database().ref().update(updates);
+                updates[ '/folders/' + vm.folderKey + '/' + vm.user_id ] = true;
+                firebase.database().ref().update( updates );
 
                 vm.showInput = false;
             };
 
 
-            vm.addFolder = function (ev) {
+            vm.addFolder = function ( ev ) {
                 var confirm = $mdDialog.prompt()
-                    .title('Create new folder')
-                    .placeholder('Enter a title for your folder')
-                    .ariaLabel('Folder title')
-                    .initialValue('')
-                    .targetEvent(ev)
-                    .ok('Create')
-                    .cancel('Cancel');
+                    .title( 'Create new folder' )
+                    .placeholder( 'Enter a title for your folder' )
+                    .ariaLabel( 'Folder title' )
+                    .initialValue( '' )
+                    .targetEvent( ev )
+                    .ok( 'Create' )
+                    .cancel( 'Cancel' );
 
-                $mdDialog.show(confirm).then(function (result) {
+                $mdDialog.show( confirm ).then( function ( result ) {
                     vm.projTitle = result;
                     vm.createFolder();
-                });
+                } );
             };
 
-            vm.editFolder = function (ev, folder) {
+            vm.editFolder = function ( ev, folder ) {
                 var folder = folder;
                 var confirm = $mdDialog.prompt()
-                    .title('Edit folder')
-                    .placeholder('Enter a new name')
-                    .ariaLabel('Folder title')
-                    .initialValue(folder.title)
-                    .targetEvent(ev)
-                    .ok('Save')
-                    .cancel('Cancel');
+                    .title( 'Edit folder' )
+                    .placeholder( 'Enter a new name' )
+                    .ariaLabel( 'Folder title' )
+                    .initialValue( folder.title )
+                    .targetEvent( ev )
+                    .ok( 'Save' )
+                    .cancel( 'Cancel' );
 
-                $mdDialog.show(confirm).then(function (result) {
+                $mdDialog.show( confirm ).then( function ( result ) {
                     folder.title = result;
-                    activeProject.setFolder(folder.title, folder.$id);
-                    vm.folders.$save(folder);
-                });
+                    activeProject.setFolder( folder.title, folder.$id );
+                    vm.folders.$save( folder );
+                } );
             };
 
 
-            vm.updateFolder = function (folder) {
-                vm.folders.$save(folder);
+            vm.updateFolder = function ( folder ) {
+                vm.folders.$save( folder );
             };
 
 
-            vm.createProject = function (folder) {
+            vm.createProject = function ( folder ) {
                 var folder = folder;
                 var projectData = {
                     title: vm.projTitle,
@@ -843,148 +868,148 @@
                     user_id: vm.user_id
                 };
 
-                vm.projectKey = firebase.database().ref('/projects').push().key;
+                vm.projectKey = firebase.database().ref( '/projects' ).push().key;
 
                 var updates = {};
 
-                updates['/projects/' + vm.projectKey] = projectData;
-                updates['/folders/' + folder + '/projects/' + vm.projectKey] = true;
+                updates[ '/projects/' + vm.projectKey ] = projectData;
+                updates[ '/folders/' + folder + '/projects/' + vm.projectKey ] = true;
 
-                firebase.database().ref().update(updates);
+                firebase.database().ref().update( updates );
             };
 
 
-            vm.addProject = function (ev, folder) {
+            vm.addProject = function ( ev, folder ) {
                 var folder = folder;
                 var confirm = $mdDialog.prompt()
-                    .title('Create new project')
-                    .placeholder('Enter a title for your project')
-                    .ariaLabel('Project title')
-                    .targetEvent(ev)
-                    .ok('Create')
-                    .cancel('Cancel');
+                    .title( 'Create new project' )
+                    .placeholder( 'Enter a title for your project' )
+                    .ariaLabel( 'Project title' )
+                    .targetEvent( ev )
+                    .ok( 'Create' )
+                    .cancel( 'Cancel' );
 
-                $mdDialog.show(confirm).then(function (result) {
+                $mdDialog.show( confirm ).then( function ( result ) {
                     vm.projTitle = result;
-                    vm.createProject(folder);
-                });
+                    vm.createProject( folder );
+                } );
             };
 
 
-            vm.projectMenu = function ($mdOpenMenu, ev) {
-                $mdOpenMenu(ev);
+            vm.projectMenu = function ( $mdOpenMenu, ev ) {
+                $mdOpenMenu( ev );
             };
 
 
 
-            vm.showProjects = function (folder) {
+            vm.showProjects = function ( folder ) {
                 var folder = folder;
-                activeFolder.setActive(folder);
+                activeFolder.setActive( folder );
             };
 
 
-            vm.loadProjects = function (folderId, folderTitle) {
+            vm.loadProjects = function ( folderId, folderTitle ) {
                 vm.todoView = false;
                 vm.folder = folderId;
                 vm.folderTitle = folderTitle;
-                activeFolder.setActive(folderId, folderTitle);
+                activeFolder.setActive( folderId, folderTitle );
                 vm.projectView = true;
             };
 
 
 
-            vm.showTodos = function (projectId, projectTitle, folderTitle, folderId) {
-                activeProject.setActive(projectId, projectTitle, folderTitle, folderId);
+            vm.showTodos = function ( projectId, projectTitle, folderTitle, folderId ) {
+                activeProject.setActive( projectId, projectTitle, folderTitle, folderId );
                 vm.todoView = true;
             };
 
 
 
-            vm.folderMenu = function ($mdOpenMenu, ev, folder) {
+            vm.folderMenu = function ( $mdOpenMenu, ev, folder ) {
                 vm.folder = folder;
-                $mdOpenMenu(ev);
+                $mdOpenMenu( ev );
             };
 
 
 
-            vm.projectFilter = function (folder) {
+            vm.projectFilter = function ( folder ) {
                 return project.folder == folder ? true : false;
             };
 
 
 
-            vm.deleteFolder = function (folder, ev) {
+            vm.deleteFolder = function ( folder, ev ) {
                 var confirm = $mdDialog.confirm()
-                    .title('Would you like to delete this folder?')
-                    .textContent('This will delete the folder and its projects forever.')
-                    .targetEvent(ev)
-                    .ok('Delete forever')
-                    .cancel("No! Don't do it!");
+                    .title( 'Would you like to delete this folder?' )
+                    .textContent( 'This will delete the folder and its projects forever.' )
+                    .targetEvent( ev )
+                    .ok( 'Delete forever' )
+                    .cancel( "No! Don't do it!" );
 
-                $mdDialog.show(confirm).then(function () {
-                    vm.folders.$remove(folder);
+                $mdDialog.show( confirm ).then( function () {
+                    vm.folders.$remove( folder );
                 }, function () {
-                    console.log('This folder was not deleted');
-                });
+                    console.log( 'This folder was not deleted' );
+                } );
             };
 
 
-            vm.editProject = function (ev) {
+            vm.editProject = function ( ev ) {
                 var title = activeProject.getActive().projectTitle;
                 var folderTitle = activeProject.getActive().folderTitle;
                 var folderId = activeProject.getActive().folderId;
                 var confirm = $mdDialog.prompt()
-                    .title('Edit project')
-                    .placeholder('Enter a new name')
-                    .ariaLabel('Project title')
-                    .initialValue(title)
-                    .targetEvent(ev)
-                    .ok('Save')
-                    .cancel('Cancel');
+                    .title( 'Edit project' )
+                    .placeholder( 'Enter a new name' )
+                    .ariaLabel( 'Project title' )
+                    .initialValue( title )
+                    .targetEvent( ev )
+                    .ok( 'Save' )
+                    .cancel( 'Cancel' );
 
-                $mdDialog.show(confirm).then(function (result) {
+                $mdDialog.show( confirm ).then( function ( result ) {
                     var id = activeProject.getActive().id;
                     title = result;
                     var updates = {};
-                    updates['/projects/' + id + '/title'] = title;
-                    firebase.database().ref().update(updates);
-                    activeProject.setActive(id, title, folderTitle, folderId);
-                });
+                    updates[ '/projects/' + id + '/title' ] = title;
+                    firebase.database().ref().update( updates );
+                    activeProject.setActive( id, title, folderTitle, folderId );
+                } );
             };
 
 
-            vm.deleteProject = function (ev) {
+            vm.deleteProject = function ( ev ) {
                 var confirm = $mdDialog.confirm()
-                    .title('Would you like to delete this project?')
-                    .textContent('This will delete the project forever.')
-                    .targetEvent(ev)
-                    .ok('Delete forever')
-                    .cancel("No! Leave my project alone!");
+                    .title( 'Would you like to delete this project?' )
+                    .textContent( 'This will delete the project forever.' )
+                    .targetEvent( ev )
+                    .ok( 'Delete forever' )
+                    .cancel( "No! Leave my project alone!" );
 
-                $mdDialog.show(confirm).then(function () {
+                $mdDialog.show( confirm ).then( function () {
                     var project = activeProject.getActive().id;
                     var updates = {};
-                    updates['/folders/' + vm.folder + '/projects/' + project] = null;
-                    updates['/projects/' + project] = null;
-                    firebase.database().ref().update(updates);
-                    activeProject.setActive(null, null, null, null);
+                    updates[ '/folders/' + vm.folder + '/projects/' + project ] = null;
+                    updates[ '/projects/' + project ] = null;
+                    firebase.database().ref().update( updates );
+                    activeProject.setActive( null, null, null, null );
                     vm.todoView = false;
                 }, function () {
-                    console.log('This project was not deleted');
-                });
+                    console.log( 'This project was not deleted' );
+                } );
             };
 
 
-            vm.openFolderOptions = function ($mdOpenMenu, ev) {
-                $mdOpenMenu(ev);
+            vm.openFolderOptions = function ( $mdOpenMenu, ev ) {
+                $mdOpenMenu( ev );
             };
 
 
-        })
+        } )
 
 
 
-        .controller('TimerCtrl', function ($scope, $timeout, $firebaseObject, $firebaseArray, activeTodo, Auth) {
+        .controller( 'TimerCtrl', function ( $scope, $timeout, $firebaseObject, $firebaseArray, activeTodo, Auth ) {
 
             var vm = this;
 
@@ -996,31 +1021,31 @@
 
             vm.timers;
 
-            if (vm.id) {
-                var ref = firebase.database().ref('/' + vm.level).child(vm.id);
-                vm.todo = $firebaseObject(ref);
+            if ( vm.id ) {
+                var ref = firebase.database().ref( '/' + vm.level ).child( vm.id );
+                vm.todo = $firebaseObject( ref );
                 vm.todoId = vm.todo.$id;
             }
 
-            var timerRef = firebase.database().ref('/timers').orderByChild('user_id').equalTo(vm.user_id);
-            vm.timers = $firebaseArray(timerRef);
+            var timerRef = firebase.database().ref( '/timers' ).orderByChild( 'user_id' ).equalTo( vm.user_id );
+            vm.timers = $firebaseArray( timerRef );
 
             vm.timerRunning = false;
             vm.editedTimer = {};
 
             vm.startTimer = function () {
-                $scope.$broadcast('timer-start');
-                console.log(activeTodo);
+                $scope.$broadcast( 'timer-start' );
+                console.log( activeTodo );
                 vm.timerRunning = true;
             };
 
             vm.stopTimer = function () {
-                $scope.$broadcast('timer-stop');
+                $scope.$broadcast( 'timer-stop' );
                 vm.timerRunning = false;
             };
 
-            vm.addTimer = function (data) {
-                var timerData =  {
+            vm.addTimer = function ( data ) {
+                var timerData = {
                     parent: activeTodo.getActive().id,
                     totalTime: data,
                     timestamp: firebase.database.ServerValue.TIMESTAMP,
@@ -1028,38 +1053,38 @@
                     user_id: vm.user_id
                 };
 
-                vm.timerKey = firebase.database().ref('/timers').push().key;
+                vm.timerKey = firebase.database().ref( '/timers' ).push().key;
 
                 var updates = {};
-                updates['/timers/' + vm.timerKey] = timerData;
+                updates[ '/timers/' + vm.timerKey ] = timerData;
 
-                firebase.database().ref().update(updates);
+                firebase.database().ref().update( updates );
             };
 
-            $scope.$on('timer-stopped', function (ev, data) {
-                vm.addTimer(data);
-            });
+            $scope.$on( 'timer-stopped', function ( ev, data ) {
+                vm.addTimer( data );
+            } );
 
-            vm.convertTime = function (timestamp) {
-                var converted = new Date(timestamp);
+            vm.convertTime = function ( timestamp ) {
+                var converted = new Date( timestamp );
                 var dtString = converted.toLocaleString();
                 return dtString;
             };
 
-            vm.cancelEditTime = function (timer) {
-                angular.copy(vm.editedTimer, timer);
+            vm.cancelEditTime = function ( timer ) {
+                angular.copy( vm.editedTimer, timer );
                 timer.edit = false;
             };
 
-            vm.saveTime = function (timer) {
+            vm.saveTime = function ( timer ) {
                 timer.edit = false;
-                vm.timers.$save(timer);
+                vm.timers.$save( timer );
             };
-        })
+        } )
 
 
 
-        .controller('detailCtrl', function ($scope, $timeout, $mdSidenav, $firebaseObject, activeTodo, detailTodo) {
+        .controller( 'detailCtrl', function ( $scope, $timeout, $mdSidenav, $firebaseObject, activeTodo, detailTodo ) {
             var vm = this;
 
             /*vm.todoId = activeTodo.getActive().id;
@@ -1071,30 +1096,30 @@
             vm.todoObj;
             vm.title;
 
-            detailTodo.$loaded(function () {
+            detailTodo.$loaded( function () {
                 vm.todo = detailTodo;
-            });
+            } );
 
 
-        })
+        } )
 
 
         // Main application
 
-        .controller('AppCtrl', function ($mdSidenav) {
+        .controller( 'AppCtrl', function ( $mdSidenav ) {
 
             var vm = this;
 
-            vm.close = function (side) {
-                $mdSidenav(side).close();
+            vm.close = function ( side ) {
+                $mdSidenav( side ).close();
             };
 
-        })
+        } )
 
 
 
 
-        .controller('TopCtrl', function ($location, $firebaseObject, $mdSidenav, Auth, activeProject) {
+        .controller( 'TopCtrl', function ( $location, $firebaseObject, $mdSidenav, Auth, activeProject ) {
 
             var vm = this;
 
@@ -1103,47 +1128,47 @@
             vm.activeProject = activeProject.getActive();
 
 
-            var ref = firebase.database().ref('/projects/' + vm.activeProject.id);
+            var ref = firebase.database().ref( '/projects/' + vm.activeProject.id );
             vm.projTitle = vm.activeProject.title;
 
             vm.toggleLeft = function () {
-                $mdSidenav('left').toggle();
+                $mdSidenav( 'left' ).toggle();
             };
 
-            vm.auth.$onAuthStateChanged(function (firebaseUser) {
-                if (firebaseUser) {
-                    console.log('Signed in');
+            vm.auth.$onAuthStateChanged( function ( firebaseUser ) {
+                if ( firebaseUser ) {
+                    console.log( 'Signed in' );
                 }
                 else {
-                    $location.path('/');
+                    $location.path( '/' );
                 }
-            });
+            } );
 
             vm.logOut = function () {
                 vm.auth.$signOut();
             }
 
 
-        })
+        } )
 
 
 
-        .controller('RightCtrl', function ($mdSidenav) {
+        .controller( 'RightCtrl', function ( $mdSidenav ) {
 
             var vm = this;
 
             vm.close = function () {
-                $mdSidenav('right').close();
+                $mdSidenav( 'right' ).close();
             };
 
 
 
-        })
+        } )
 
 
 
 
-        .controller('ListCtrl', function ($scope, activeProject, activeFolder, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos, childTodos, activeTodo) {
+        .controller( 'ListCtrl', function ( $scope, activeProject, activeFolder, $firebaseArray, $firebaseObject, $mdSidenav, $mdDialog, projects, Auth, todos, childTodos, activeTodo ) {
 
             var vm = this;
 
@@ -1165,18 +1190,18 @@
             vm.completeText = 'Show';
 
             vm.openDetail = function () {
-                $mdSidenav('todoDetail').open();
+                $mdSidenav( 'todoDetail' ).open();
             };
 
             vm.closeDetail = function () {
-                $mdSidenav('todoDetail').close();
+                $mdSidenav( 'todoDetail' ).close();
             };
 
-            vm.toggleDetail = function (todo, level) {
+            vm.toggleDetail = function ( todo, level ) {
                 vm.isDetailOpen = !vm.isDetailOpen;
-                activeTodo.setActive(todo, level);
-                console.log('activeTodo.id', activeTodo.id);
-                console.log('activeTodo.level', activeTodo.level);
+                activeTodo.setActive( todo, level );
+                console.log( 'activeTodo.id', activeTodo.id );
+                console.log( 'activeTodo.level', activeTodo.level );
             };
 
 
@@ -1193,46 +1218,46 @@
                     user_id: vm.auth
                 };
 
-                var newKey = firebase.database().ref('/todos').push().key;
+                var newKey = firebase.database().ref( '/todos' ).push().key;
                 vm.title = '';
 
                 var updates = {};
 
-                updates['/todos/' + newKey] = todoData;
+                updates[ '/todos/' + newKey ] = todoData;
 
-                return firebase.database().ref().update(updates);
+                return firebase.database().ref().update( updates );
 
             };
 
 
-            vm.deleteTodo = function (todo, ev) {
+            vm.deleteTodo = function ( todo, ev ) {
                 var confirm = $mdDialog.confirm()
-                    .title('Would you like to delete this todo item?')
-                    .textContent('This will delete the item forever.')
-                    .targetEvent(ev)
-                    .ok('Delete forever')
-                    .cancel("No! Don't do it!");
+                    .title( 'Would you like to delete this todo item?' )
+                    .textContent( 'This will delete the item forever.' )
+                    .targetEvent( ev )
+                    .ok( 'Delete forever' )
+                    .cancel( "No! Don't do it!" );
 
-                $mdDialog.show(confirm).then(function () {
-                    vm.todos.$remove(todo);
+                $mdDialog.show( confirm ).then( function () {
+                    vm.todos.$remove( todo );
                 }, function () {
-                    console.log('This item was not removed');
-                });
+                    console.log( 'This item was not removed' );
+                } );
             };
 
 
-            vm.removeTodo = function (todo) {
+            vm.removeTodo = function ( todo ) {
                 //angular.element
-                vm.todos.$remove(todo);
+                vm.todos.$remove( todo );
             };
 
 
-            vm.projFilter = function (todo) {
+            vm.projFilter = function ( todo ) {
                 return todo.project == activeProject.id ? true : false;
             };
 
-            vm.completedFilter = function (todo) {
-                if (!vm.showCompleted) {
+            vm.completedFilter = function ( todo ) {
+                if ( !vm.showCompleted ) {
                     return todo.complete === false;
                 }
                 else {
@@ -1240,8 +1265,8 @@
                 }
             };
 
-            vm.childCompletedFilter = function (child) {
-                if (!vm.showCompleted) {
+            vm.childCompletedFilter = function ( child ) {
+                if ( !vm.showCompleted ) {
                     return child.completed === false;
                 }
                 else {
@@ -1251,7 +1276,7 @@
 
             vm.toggleCompleted = function () {
                 vm.showCompleted = !vm.showCompleted;
-                if (vm.showCompleted) {
+                if ( vm.showCompleted ) {
                     vm.completeText = 'Hide';
                 }
                 else {
@@ -1261,9 +1286,9 @@
 
 
 
-            vm.addChild = function (todo) {
+            vm.addChild = function ( todo ) {
                 var todo = todo;
-                console.log(todo);
+                console.log( todo );
                 var childData = {
                     title: vm.childTitle,
                     createdDate: firebase.database.ServerValue.TIMESTAMP,
@@ -1278,27 +1303,27 @@
 
                 var updates = {};
 
-                var newKey = firebase.database().ref('/childTodos').push().key;
-                console.log(newKey);
+                var newKey = firebase.database().ref( '/childTodos' ).push().key;
+                console.log( newKey );
 
-                updates['/childTodos/' + newKey] = childData;
+                updates[ '/childTodos/' + newKey ] = childData;
                 vm.childTitle = '';
 
-                return firebase.database().ref().update(updates);
+                return firebase.database().ref().update( updates );
 
             };
 
 
 
-            vm.updateChild = function (child) {
-                vm.childTodos.$save(child).then(function (ref) {
+            vm.updateChild = function ( child ) {
+                vm.childTodos.$save( child ).then( function ( ref ) {
                     ref.key === child.$id;
-                });
+                } );
             };
 
 
-            vm.removeChild = function (child) {
-                vm.childTodos.$remove(child);
+            vm.removeChild = function ( child ) {
+                vm.childTodos.$remove( child );
             };
 
 
@@ -1337,39 +1362,39 @@
 
             vm.newDate = new Date();
 
-            vm.setDueDate = function (todo) {
+            vm.setDueDate = function ( todo ) {
 
                 todo.dueDate = vm.newDate.getTime();
                 todo.showDatePicker = false;
-                vm.todos.$save(todo).then(function (ref) {
+                vm.todos.$save( todo ).then( function ( ref ) {
                     ref.key === todo.$id;
-                });
+                } );
                 vm.newDate = new Date();
             };
 
 
-            vm.setChildDueDate = function (child) {
+            vm.setChildDueDate = function ( child ) {
                 child.dueDate = vm.newDate.getTime();
                 child.showDatePicker = false;
-                vm.childTodos.$save(child).then(function (ref) {
+                vm.childTodos.$save( child ).then( function ( ref ) {
                     ref.key === child.$id;
-                });
+                } );
                 vm.newDate = new Date();
             };
 
 
-            vm.updateTodo = function (todo) {
-                vm.todos.$save(todo).then(function (ref) {
+            vm.updateTodo = function ( todo ) {
+                vm.todos.$save( todo ).then( function ( ref ) {
                     ref.key === todo.$id;
-                });
+                } );
 
-                if (todo.complete) {
+                if ( todo.complete ) {
 
                 }
             };
 
 
-            vm.convertToParent = function (child) {
+            vm.convertToParent = function ( child ) {
                 var child = child;
                 var childData = {
                     complete: child.complete,
@@ -1383,11 +1408,11 @@
 
                 var updates = {};
 
-                updates['/todos/' + child.$id] = childData;
+                updates[ '/todos/' + child.$id ] = childData;
 
-                firebase.database().ref().update(updates);
+                firebase.database().ref().update( updates );
 
-                vm.childTodos.$remove(child);
+                vm.childTodos.$remove( child );
             };
 
 
@@ -1434,11 +1459,11 @@
                 }
             };*/
 
-        })
+        } )
 
 
 
-        .controller('LeftCtrl', function ($route, $routeParams, $mdSidenav, $mdDialog, $firebaseArray, $firebaseObject, Auth) {
+        .controller( 'LeftCtrl', function ( $route, $routeParams, $mdSidenav, $mdDialog, $firebaseArray, $firebaseObject, Auth ) {
 
             var vm = this;
 
@@ -1448,54 +1473,54 @@
 
             vm.params = $routeParams;
 
-            var ref = firebase.database().ref('/projects').orderByChild('user_id').equalTo(vm.user_id);
-            vm.projects = $firebaseArray(ref);
+            var ref = firebase.database().ref( '/projects' ).orderByChild( 'user_id' ).equalTo( vm.user_id );
+            vm.projects = $firebaseArray( ref );
 
-            vm.addProject = function (ev) {
+            vm.addProject = function ( ev ) {
                 var confirm = $mdDialog.prompt()
-                    .title('Create new project')
-                    .placeholder('Enter a title for your project')
-                    .ariaLabel('Project title')
-                    .initialValue('')
-                    .targetEvent(ev)
-                    .ok('Create')
-                    .cancel('Cancel');
+                    .title( 'Create new project' )
+                    .placeholder( 'Enter a title for your project' )
+                    .ariaLabel( 'Project title' )
+                    .initialValue( '' )
+                    .targetEvent( ev )
+                    .ok( 'Create' )
+                    .cancel( 'Cancel' );
 
-                $mdDialog.show(confirm).then(function (result) {
+                $mdDialog.show( confirm ).then( function ( result ) {
                     vm.title = result;
-                    vm.projects.$add({
+                    vm.projects.$add( {
                         title: vm.title,
                         user_id: vm.user_id
-                    });
-                });
+                    } );
+                } );
             };
 
 
-            vm.setCurrentProject = function (project) {
+            vm.setCurrentProject = function ( project ) {
                 var proj;
-                console.log(project);
-                var ref = firebase.database().ref('projects/' + project);
-                console.log('ref: ' + ref);
+                console.log( project );
+                var ref = firebase.database().ref( 'projects/' + project );
+                console.log( 'ref: ' + ref );
                 //var projRec = vm.projects.$getRecord(project);
-                var obj = $firebaseObject(ref);
+                var obj = $firebaseObject( ref );
                 obj.$loaded()
-                    .then(function (data) {
+                    .then( function ( data ) {
                         proj = data;
-                        DataFactory.update(proj.title);
-                        console.log(proj.title);
-                        console.log(DataFactory.data.ProjectName);
-                    });
+                        DataFactory.update( proj.title );
+                        console.log( proj.title );
+                        console.log( DataFactory.data.ProjectName );
+                    } );
 
 
             };
 
 
-            vm.projectFilter = function (project) {
+            vm.projectFilter = function ( project ) {
                 var folder = vm.params.folderId;
                 return project.folder == folder ? true : false;
             };
 
-        })
+        } )
 
 
-})();
+} )();

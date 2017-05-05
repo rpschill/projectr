@@ -6,7 +6,7 @@
 
             <md-toolbar>
                 <div class="md-toolbar-tools">
-                    <span>projectr<sup><i>beta</i></sup></span>
+                    <span>projectr</span>
                 </div>
             </md-toolbar>
 
@@ -89,14 +89,14 @@
                         <md-menu-content>
 
                             <md-menu-item>
-                                <md-button ng-click="dash.signOut()">
-                                    Sign Out
+                                <md-button ng-href="#/profile">
+                                    Edit Profile
                                 </md-button>
                             </md-menu-item>
 
                             <md-menu-item>
-                                <md-button ng-href="#/profile">
-                                    Edit Profile
+                                <md-button ng-click="dash.signOut()">
+                                    Sign Out
                                 </md-button>
                             </md-menu-item>
 
@@ -390,7 +390,7 @@
                                     <label>Add a note</label>
                                     <textarea ng-model="dash.todoObj.notes" md-maxlength="150" rows="5"></textarea>
                                 </md-input-container>
-                                <md-button ng-if="dash.showNoteInput" class="md-primary md-raised" ng-click="dash.saveNote">Save Note</md-button>
+                                <md-button ng-if="dash.showNoteInput" class="md-primary md-raised" ng-click="dash.saveNote()">Save Note</md-button>
                             </div>
                             <md-divider></md-divider>
                         </md-list-item>
