@@ -6,7 +6,11 @@ ng-view {
     height: 100vh;
 }
 
-
+.footer {
+    max-height: 30px;
+    background-color: #000;
+    color: #ffffff;
+}
 
 .center {
     text-align: center;

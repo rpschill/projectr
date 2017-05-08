@@ -20,7 +20,7 @@
             } );
         }] )
 
-        .config( [ '$mdThemingProvider', '$locationProvider', '$routeProvider', function ( $mdThemingProvider, $locationProvider, $routeProvider ) {
+        .config( [ '$mdThemingProvider', '$mdProgressCircularProvider', '$locationProvider', '$routeProvider', function ( $mdThemingProvider, $mdProgressCircularProvider, $locationProvider, $routeProvider ) {
 
             $mdThemingProvider
                 .theme( 'default' )
@@ -1009,7 +1009,7 @@
 
 
 
-        .controller( 'TimerCtrl', function ( $scope, $timeout, $firebaseObject, $firebaseArray, activeTodo, Auth ) {
+        .controller( 'TimerCtrl', function ( $scope, $timeout, $interval, $firebaseObject, $firebaseArray, activeTodo, Auth ) {
 
             var vm = this;
 
@@ -1020,6 +1020,12 @@
             vm.level = activeTodo.getActive().level;
 
             vm.timers;
+
+            vm.progressActivated = false;
+            vm.determinateValue = 0;
+
+            vm.showTimerList = false;
+            vm.showTimersText = 'Show';
 
             if ( vm.id ) {
                 var ref = firebase.database().ref( '/' + vm.level ).child( vm.id );
@@ -1033,10 +1039,29 @@
             vm.timerRunning = false;
             vm.editedTimer = {};
 
+            vm.showTimers = function () {
+                if ( !vm.showTimerList ) {
+                    vm.showTimerList = true;
+                    vm.showTimersText = 'Hide';
+                }
+                else {
+                    vm.showTimerList = false;
+                    vm.showTimersText = 'Show';
+                }
+            }
+
             vm.startTimer = function () {
                 $scope.$broadcast( 'timer-start' );
                 console.log( activeTodo );
                 vm.timerRunning = true;
+                vm.showTimerList = false;
+
+                $interval( function () {
+                    vm.determinateValue += 1;
+                    if ( vm.determinateValue > 6000 ) {
+                        vm.determinateValue = 0;
+                    }
+                }, 100 );
             };
 
             vm.stopTimer = function () {
@@ -1080,6 +1105,7 @@
                 timer.edit = false;
                 vm.timers.$save( timer );
             };
+
         } )
 
 
